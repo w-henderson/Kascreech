@@ -3,18 +3,21 @@
 <head>
     <title>Kascreech</title>
     <link rel="stylesheet" href="styles/client.css">
-    <script src="scripts/client.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <script src="scripts/uuid.js"></script>
+    <script src="scripts/client.js"></script>
 </head>
 
 <body>
     <div id="main">
-        <div id="opt1"></div>
-        <div id="opt2"></div>
-        <div id="opt3"></div>
-        <div id="opt4"></div>
+        <div id="opt1" onclick="sendResponse('blue');"></div>
+        <div id="opt2" onclick="sendResponse('red');"></div>
+        <div id="opt3" onclick="sendResponse('green');"></div>
+        <div id="opt4" onclick="sendResponse('yellow');"></div>
     </div>
     <img src="pog.png">
+    <div id="correctnessIndicator"></div>
 </body>
 
 </html>
