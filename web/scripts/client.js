@@ -7,8 +7,8 @@ function showCorrectness(correct) {
     document.getElementById("correctnessIndicator").className = document.getElementById("correctnessIndicator").className.replace("show", "");
     window.setTimeout(function () {
       document.getElementById("correctnessIndicator").className = "";
-    }, 1000)
-  }, 2000)
+    }, 1000);
+  }, 2000);
 }
 
 function sendResponse(colour) {
