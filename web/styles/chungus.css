@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;400;800&display=swap');
+
+body {
+    padding: 0;
+    margin: 0;
+    font-family: Inter;
+}
+
+#question {
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    top: 0;
+    box-sizing: border-box;
+    border-color: white;
+    border-style: solid;
+    border-width: 2vh 2vh 0;
+    border-radius: 5vh;
+    background-color: #ddd;
+    display: flex;
+    place-items: center;
+    font-size: 6vh;
+    text-align: center;
+    color: black;
+}
+
+#question span {
+    font-size: 8vh;
+    font-weight: 800;
+    width: 100%;
+}
+
+#questionNumber {
+    position: absolute;
+    top: 2vh;
+    left: 2vh;
+    background-color: #eee;
+    padding: 2vh;
+    box-sizing: border-box;
+    border-radius: 2.5vh;
+}
+
+#timer {
+    position: absolute;
+    top: 2vh;
+    right: 2vh;
+    background-color: #eee;
+    padding: 2vh;
+    box-sizing: border-box;
+    border-radius: 2.5vh;
+}
+
+#timer i {
+    margin-right: 2vh;
+}
+
+#options {
+    width: 100%;
+    height: 50%;
+    position: absolute;
+    bottom: 0;
+}
+
+#options div {
+    width: 50%;
+    height: 50%;
+    box-sizing: border-box;
+    border-radius: 5vh;
+    border-style: solid;
+    border-color: white;
+    transition: 100ms;
+    padding: 2vh;
+    text-align: center;
+    display: flex;
+    place-items: center;
+    font-size: 4vh;
+    color: white;
+    transition: background-color 200ms;
+}
+
+#options span {
+    width: 100%;
+    text-shadow: 0px 0px 5px black;
+}
+
+#options div:nth-child(odd) {
+    float: right;
+}
+
+#opt1 { background-color: #1068CE; border-width: 2vh 2vh 1vh 1vh }
+#opt2 { background-color: #E21D3C; border-width: 2vh 1vh 1vh 2vh }
+#opt3 { background-color: #27890A; border-width: 1vh 2vh 2vh 1vh }
+#opt4 { background-color: #D99E01; border-width: 1vh 1vh 2vh 2vh }
+
+#opt1.correct { background-color: #1068CE !important }
+#opt2.correct { background-color: #E21D3C !important }
+#opt3.correct { background-color: #27890A !important }
+#opt4.correct { background-color: #D99E01 !important }
+
+#options.showCorrect #opt1 { background-color: #aaa }
+#options.showCorrect #opt2 { background-color: #aaa }
+#options.showCorrect #opt3 { background-color: #aaa }
+#options.showCorrect #opt4 { background-color: #aaa }
+
+img {
+    position: absolute;
+    top: 75%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0px 0px 20px white);
+    pointer-events: none;
+    transition: 1s;
+    width: 200px;
+}
