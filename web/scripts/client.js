@@ -1,4 +1,4 @@
-const SERVER_IP = "http://localhost";
+const SERVER_IP = "http://192.168.137.211:8080";
 const USER_ID = uuidv4();
 
 function showCorrectness(correct) {
@@ -12,14 +12,16 @@ function showCorrectness(correct) {
 }
 
 function sendResponse(colour) {
-  window.fetch(SERVER_IP + "/postResponse", {
-    method: "post",
-    body: JSON.stringify({ colour, USER_ID })
-  }).then(json).then(function (data) {
+  console.log(JSON.stringify({ colour, uuid: USER_ID }));
+  $.post(SERVER_IP + "/postResponse", JSON.stringify({ colour, uuid: USER_ID }), function (data) {
+    data = JSON.parse(data);
     let now = new Date().getTime();
     let then = data.timestamp;
     window.setTimeout(function () {
       showCorrectness(data.correct);
     }, then - now);
+  }).fail(function (err) {
+    document.getElementById("oof").currentTime = 0;
+    document.getElementById("oof").play();
   });
 }
