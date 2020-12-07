@@ -1,18 +1,27 @@
+// mod server_types;
 mod types;
+
 use types::{Guess, QuestionReply};
 
+use actix_cors::Cors;
 use actix_web::{dev::HttpResponseBuilder, http::StatusCode, web, App, HttpResponse, HttpServer};
 
 async fn guess(evt: web::Json<Guess>) -> HttpResponse {
     println!("{:?}", evt);
 
-    HttpResponseBuilder::new(StatusCode::from_u16(200).unwrap()).json(QuestionReply::default())
+    let to_send = QuestionReply::default();
+
+    println!("{:?}", to_send);
+
+    HttpResponseBuilder::new(StatusCode::from_u16(200).unwrap()).json(to_send)
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
-        App::new().service(
+        let cors = Cors::permissive();
+
+        App::new().wrap(cors).service(
             web::resource("/postResponse")
                 .route(web::post().to(guess))
                 .default_service(web::route().to(HttpResponse::NotFound)),

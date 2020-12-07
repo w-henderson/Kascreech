@@ -1,4 +1,4 @@
-const SERVER_IP = "http://192.168.137.211:8080";
+const SERVER_IP = "http://localhost:8080";
 const USER_ID = uuidv4();
 
 function showCorrectness(correct) {

@@ -3,28 +3,8 @@ use std::time::{Duration, SystemTime};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Debug)]
-#[serde(rename = "colour")]
-pub enum Colour {
-    #[serde(rename = "red")]
-    Red,
-    #[serde(rename = "blue")]
-    Blue,
-    #[serde(rename = "yellow")]
-    Yellow,
-    #[serde(rename = "green")]
-    Green,
-}
-
-impl Default for Colour {
-    fn default() -> Self {
-        Self::Red
-    }
-}
-
-#[derive(Deserialize, Serialize, Debug)]
 pub struct Guess {
-    colour: Colour,
-    #[serde(rename = "USER_ID")]
+    colour: String,
     uuid: String,
 }
 
@@ -32,7 +12,7 @@ impl Default for Guess {
     fn default() -> Self {
         Self {
             uuid: "42417fdc-eae4-4d55-9d52-14d561ce6f6a".to_string(),
-            ..Default::default()
+            colour: "red".to_string(),
         }
     }
 }
