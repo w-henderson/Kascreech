@@ -1,6 +1,10 @@
 const SERVER_IP = "http://localhost:8080";
 const USER_ID = uuidv4();
 
+$.ajaxSetup({
+  contentType: "application/json; charset=utf-8"
+});
+
 function showCorrectness(correct) {
   document.getElementById("correctnessIndicator").className = correct ? "show" : "show wrong";
   window.setTimeout(function () {
@@ -14,7 +18,6 @@ function showCorrectness(correct) {
 function sendResponse(colour) {
   console.log(JSON.stringify({ colour, uuid: USER_ID }));
   $.post(SERVER_IP + "/postResponse", JSON.stringify({ colour, uuid: USER_ID }), function (data) {
-    data = JSON.parse(data);
     let now = new Date().getTime();
     let then = data.timestamp;
     window.setTimeout(function () {

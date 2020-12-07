@@ -1,4 +1,3 @@
-// mod server_types;
 mod types;
 
 use types::{Guess, QuestionReply};
@@ -10,8 +9,6 @@ async fn guess(evt: web::Json<Guess>) -> HttpResponse {
     println!("{:?}", evt);
 
     let to_send = QuestionReply::default();
-
-    println!("{:?}", to_send);
 
     HttpResponseBuilder::new(StatusCode::from_u16(200).unwrap()).json(to_send)
 }
