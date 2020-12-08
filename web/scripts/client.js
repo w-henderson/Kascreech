@@ -1,4 +1,4 @@
-const SERVER_IP = "http://localhost:8080";
+const SERVER_IP = "http://10.82.130.103:8080";
 const USER_ID = uuidv4();
 
 $.ajaxSetup({
