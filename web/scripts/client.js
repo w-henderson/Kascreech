@@ -63,6 +63,7 @@ function updateQuestion(question, index) {
   score = 0;
 
   window.setTimeout(function () {
+    document.body.className = "leaderboard";
     correctString = score > 0 ? "You got this one right!" : "You got this one wrong."
     document.getElementById("leaderboard").innerHTML = correctString + "<br>Leaderboard position loading...";
     $.post(SERVER_IP + "/leaderboard", JSON.stringify({ gameId }))
@@ -81,6 +82,9 @@ function makeGuess(id) {
     score = Math.round(1000 * (questionEndTime - new Date().getTime()) / timePerQuestion);
   }
 
+  document.body.className = "leaderboard";
+  document.getElementById("leaderboard").innerHTML = "Guess made.";
+
   $.post(SERVER_IP + "/makeGuess", JSON.stringify({
     gameId: gameId,
     uuid: USER_ID,
@@ -89,4 +93,6 @@ function makeGuess(id) {
   })).fail(function () {
     console.error("oof");
   });
+
+
 }
