@@ -37,6 +37,12 @@ body {
     width: 100%;
 }
 
+#connectedInfo {
+    font-weight: 200;
+    font-size: 6vh;
+    display: none;
+}
+
 #leaderboard {
     display: block;
     height: 0;
@@ -66,6 +72,15 @@ td {
 .leaderboard #question #qDiv #leaderboard {
     height: 35vh;
     margin-top: 5vh;
+}
+
+.leaderboard.preGame #question #qDiv #leaderboard {
+    height: 0;
+    margin-top: 0vh;
+}
+
+.preGame #question #qDiv #connectedInfo {
+    display: block;
 }
 
 #questionNumber {
@@ -167,4 +182,9 @@ img {
 
 .leaderboard img {
     top: calc(100% + 100px);
+}
+
+.fa-spinner {
+    font-weight: 200;
+    font-size: 0.8em;
 }

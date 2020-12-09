@@ -9,16 +9,18 @@
 
     <script src="scripts/uuid.js"></script>
     <script src="scripts/chungus.js"></script>
+
+    <script src="scripts/tests/chungus_test.js"></script>
 </head>
 
-<body>
+<body class="leaderboard preGame">
     <div id="question">
         <div id="questionNumber">1/10</div>
         <div id="timer"><i class="fa fa-clock"></i>20</div>
         <div id="qDiv">
-            <span id="qSpan">Which of the following is not a cheese?</span>
+            <span id="qSpan">Game Code: <i class="fa fa-spinner fa-spin"></i></span>
             <span id="leaderboard">
-                <table>
+                <table id="leaderboardTable">
                     <tr><td>1.</td><td>Poggerithm</td><td>69420</td></tr>
                     <tr><td>2.</td><td>Loggers</td><td>1337</td></tr>
                     <tr><td>3.</td><td>PogChamp</td><td>420</td></tr>
@@ -26,12 +28,13 @@
                     <tr><td>5.</td><td>fept</td><td>3</td></tr>
                 </table>
             </span>
+            <span id="connectedInfo">Game being created...<br>Please wait.</span>
         </div>
     </div>
     <div id="options">
         <div id="opt1"><span>Emmental</span></div>
         <div id="opt2"><span>Something's Brain</span></div>
-        <div id="opt3" class="correct"><span>Elliot's Feet</span></div>
+        <div id="opt3"><span>Elliot's Feet</span></div>
         <div id="opt4"><span>The United Kingdom of Great Britain and Northern Ireland</span></div>
     </div>
     <img src="pog.png">
