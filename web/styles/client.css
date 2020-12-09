@@ -1,6 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;800&display=swap');
+
 body {
     padding: 0;
     margin: 0;
+    transition: background-color 500ms;
+    font-family: Inter;
+}
+
+body.preGame {
+    animation: colorchange 30s linear infinite;
+}
+
+body.preGame #preGame {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+body.leaderboard #leaderboard {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+@keyframes colorchange
+{
+    0% {
+        background: rgb(247, 142, 86);
+    }
+    25% {
+        background: rgb(65, 196, 222);
+    }
+    50% {
+        background: rgb(140, 199, 63);
+    }
+    75% {
+        background: rgb(243, 211, 51);
+    }
+    100% {
+        background: rgb(247, 142, 86);
+    }
+}
+
+.preGame #main { transform: scale(0); }
+.leaderboard #main { transform: scale(0); }
+
+#main {
+    transition: 500ms;
 }
 
 #main div {
@@ -26,7 +68,7 @@ body {
 #opt3 { background-color: #27890A; border-width: 1vh 2vh 2vh 1vh }
 #opt4 { background-color: #D99E01; border-width: 1vh 1vh 2vh 2vh }
 
-img {
+#main img {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -55,4 +97,53 @@ img {
 
 .show {
     opacity: 1 !important;
+}
+
+#preGame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 65vw;
+    max-width: 400px;
+    transition: 500ms;
+}
+
+#preGame img {
+    width: 100%;
+    filter: brightness(1000%);
+}
+
+#preGame input {
+    width: 100%;
+    margin-top: 3vh;
+    outline: none;
+    border: 3px solid #aaa;
+    border-radius: 2px;
+    box-sizing: border-box;
+    padding: 1.5vh;
+    font-weight: 600;
+    font-size: 2.5vh;
+    text-align: center;
+}
+
+#preGame input[type="button"] {
+    background-color: rgb(51, 51, 51);
+    border: 3px solid rgb(51, 51, 51);
+    color: white;
+}
+
+#id { transition: 200ms; }
+#id.badbad { border: 3px solid red !important; }
+
+#leaderboard {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transition: 500ms;
+    transform: translate(-50%, -50%) scale(0);
+    font-weight: 800;
+    font-size: 4vh;
+    width: 80vw;
+    text-align: center;
 }

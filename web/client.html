@@ -10,15 +10,25 @@
     <script src="scripts/client.js"></script>
 </head>
 
-<body>
+<body class="preGame">
     <div id="main">
-        <div id="opt1" onclick="sendResponse('blue');"></div>
-        <div id="opt2" onclick="sendResponse('red');"></div>
-        <div id="opt3" onclick="sendResponse('green');"></div>
-        <div id="opt4" onclick="sendResponse('yellow');"></div>
+        <div id="opt1" onclick="makeGuess(0);"></div>
+        <div id="opt2" onclick="makeGuess(1);"></div>
+        <div id="opt3" onclick="makeGuess(2);"></div>
+        <div id="opt4" onclick="makeGuess(3);"></div>
+        <img src="pog.png">
     </div>
-    <img src="pog.png">
-    <div id="correctnessIndicator"></div>
+    
+    <div id="preGame">
+        <img src="logo.png">
+        <input id="id" placeholder="Game Pin" autocomplete="off">
+        <input type="button" onclick="generateGame();" value="Enter">
+    </div>
+
+    <div id="leaderboard">
+        You got that wrong!<br>You're currently in 69th place.
+    </div>
+    
     <audio id="oof"><source src="err.mp3"></audio>
 </body>
 

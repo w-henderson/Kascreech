@@ -1,4 +1,4 @@
-const SERVER_IP = "http://10.82.130.103:8080";
+const SERVER_IP = "http://kascreech.rack.ga";
 
 var gameId;
 var questions;
@@ -7,6 +7,10 @@ var timeShowingAnswers;
 var timeShowingLeaderboard;
 var gameStartTime;
 var chungus;
+
+$.ajaxSetup({
+  contentType: "application/json; charset=utf-8"
+});
 
 // starts game on the server and gets its information
 function chungusGameInfo() {
@@ -47,7 +51,7 @@ function setUpGame(data) {
         `Game begins in ${timeTillGameStart} seconds.<br>` +
         `${connectedPlayers} players are connected.`;
       if (timeTillGameStart > 5 && chungus) { // if more than 5 seconds till game begins and not testing
-        $.post(SERVER_IP + "/leaderboard", gameId)
+        $.post(SERVER_IP + "/leaderboard", JSON.stringify({ gameId }))
           .done(function (returnedData) {
             connectedPlayers = data.length;
           });
@@ -75,7 +79,7 @@ function updateQuestion(question, index) {
     document.getElementById("options").className = "showCorrect";
     document.getElementById("timer").innerHTML = "<i class='fa fa-clock'></i>0";
     if (!chungus) return;
-    $.post(SERVER_IP + "/leaderboard", gameId)
+    $.post(SERVER_IP + "/leaderboard", JSON.stringify({ gameId }))
       .done(function (returnedData) {
         i = 0
         document.getElementById("leaderboardTable").innerHTML = "";
