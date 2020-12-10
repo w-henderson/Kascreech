@@ -69,6 +69,13 @@ function setUpGame(data) {
   }, gameStartTime - new Date().getTime());
 }
 
+// function to sanitize the html
+function sanitizeHTML(text) {
+  element = document.createElement('div');
+  element.innerText = text;
+  return element.innerHTML;
+}
+
 // method to update the screen to show a question
 function updateQuestion(question, index) {
   questionEndTime = (gameStartTime + (index + 1) * (timePerQuestion + timeShowingAnswers + timeShowingLeaderboard));
@@ -88,7 +95,7 @@ function updateQuestion(question, index) {
             return;
           }
           document.getElementById("leaderboardTable").innerHTML +=
-            `<tr><td>${i + 1}</td><td>${user.username}</td><td>${user.score}</td></tr>`;
+            `<tr><td>${i + 1}</td><td>${sanitizeHTML(user.username)}</td><td>${user.score}</td></tr>`;
           i += 1;
         });
       });
