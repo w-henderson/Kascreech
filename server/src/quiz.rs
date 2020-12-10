@@ -22,15 +22,15 @@ impl Games {
     pub fn last(&self) -> Option<&Game> {
         self.games.last()
     }
-    /*pub fn check(&mut self) {
-        self.games.iter_mut().fil(|game| {
+    pub fn check(&mut self) {
+        self.games.drain_filter(|game| {
             SystemTime::now()
                 .duration_since(SystemTime::UNIX_EPOCH)
                 .unwrap()
                 .as_millis()
                 > game.to_remove
         });
-    }*/
+    }
 }
 
 #[derive(Debug)]

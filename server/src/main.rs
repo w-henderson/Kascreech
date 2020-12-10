@@ -1,3 +1,5 @@
+#![feature(drain_filter)]
+
 mod quiz;
 mod types;
 
@@ -55,6 +57,8 @@ async fn generate_game(
 
 async fn chungus(games: web::Data<Mutex<Games>>) -> HttpResponse {
     let mut games = games.lock().unwrap();
+    games.check();
+
     let rdr = std::fs::File::open("quizzes/topolocheese.json").unwrap();
     let questions = serde_json::from_reader(rdr).unwrap();
     games.generate_new_game(questions);
