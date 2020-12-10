@@ -67,6 +67,10 @@ tr:nth-child(odd) {
 
 td {
     text-align: center;
+    width: 50vw;
+    max-width: 50vw;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .leaderboard #question #qDiv #leaderboard {
