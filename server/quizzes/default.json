@@ -1,28 +1,26 @@
-{
-	"questions": [
-		{
-			"question": "Which of the following is not a cheese?",
-			"responses": [
-				"Something's Brain",
-				"Emmental",
-				"The UK",
-				"Feet"
-			],
-			"correct": [
-				2
-			]
-		},
-		{
-			"question": "What's the best language?",
-			"responses": [
-				"TS",
-				"Rust",
-				"C",
-				"Go"
-			],
-			"correct": [
-				1
-			]
-		}
-	]
-}
+[
+	{
+		"question": "Which of the following is not a cheese?",
+		"responses": [
+			"Something's Brain",
+			"Emmental",
+			"The UK",
+			"Feet"
+		],
+		"correct": [
+			2
+		]
+	},
+	{
+		"question": "What's the best language?",
+		"responses": [
+			"TS",
+			"Rust",
+			"C",
+			"Go"
+		],
+		"correct": [
+			1
+		]
+	}
+]
