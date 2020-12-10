@@ -185,7 +185,7 @@ impl Chungus {
     pub fn game_start_time(&self) -> &u128 {
         &self.game_start_time
     }
-    fn answers(&self) -> Vec<Vec<usize>> {
-        self.questions.iter().map(|a| a.correct.clone()).collect()
+    fn answers(&self) -> Vec<&Vec<usize>> {
+        self.questions.iter().map(|a| &a.correct).collect()
     }
 }
