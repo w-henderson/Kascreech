@@ -95,7 +95,7 @@ async fn main() -> std::io::Result<()> {
             .route("/chungusGameInfo", web::post().to(chungus))
             .service(actix_files::Files::new("/", "../web").index_file("index.html"))
     })
-    .bind("0.0.0.0:80")?
+    .bind("0.0.0.0:8080")?
     .run()
     .await
 }

@@ -14,7 +14,7 @@ pub struct Games {
 }
 
 impl Games {
-    pub fn generate_new_game(&mut self, questions: Questions) {
+    pub fn generate_new_game(&mut self, questions: Vec<QAndA>) {
         let game_id: String = repeat_with(|| fastrand::digit(10)).take(6).collect();
         let new_game = Game::new(game_id, questions, None, None, None);
         self.games.push(new_game);
@@ -35,7 +35,6 @@ impl Games {
 
 #[derive(Debug)]
 pub struct Game {
-    //game_id: String,
     pub players: Players,
     chungus: Chungus,
     to_remove: u128,
@@ -44,7 +43,7 @@ pub struct Game {
 impl Game {
     pub fn new(
         game_id: String,
-        questions: Questions,
+        questions: Vec<QAndA>,
         time_per_question: Option<u128>,
         time_showing_answers: Option<u128>,
         time_showing_leaderboard: Option<u128>,
@@ -56,14 +55,13 @@ impl Game {
             time_showing_leaderboard,
             game_id,
         );
-        let len = chungus.questions.questions.len() as u128;
+        let len = chungus.questions.len() as u128;
         let to_remove = chungus.game_start_time
             + (chungus.time_per_question
                 + chungus.time_showing_answers
                 + chungus.time_showing_leaderboard)
                 * len;
         Self {
-            //game_id,
             players: Players::default(),
             chungus,
             to_remove,
@@ -74,7 +72,7 @@ impl Game {
     }
     pub fn as_setup_game(&self) -> SetupGame {
         SetupGame::new(
-            self.chungus.questions.answers(),
+            self.chungus.answers(),
             Some(self.chungus.time_per_question),
             Some(self.chungus.time_showing_answers),
             Some(self.chungus.time_showing_leaderboard),
@@ -134,17 +132,6 @@ impl Ord for Player {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Default, Clone)]
-pub struct Questions {
-    questions: Vec<QAndA>,
-}
-
-impl Questions {
-    fn answers(&self) -> Vec<Vec<usize>> {
-        self.questions.iter().map(|a| a.correct.clone()).collect()
-    }
-}
-
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct QAndA {
     // The given input question
@@ -159,7 +146,7 @@ pub struct QAndA {
 pub struct Chungus {
     #[serde(rename = "bigChungus")]
     big_chungus: bool,
-    questions: Questions,
+    questions: Vec<QAndA>,
     #[serde(rename = "timePerQuestion")]
     time_per_question: u128, // this is milliseconds
     #[serde(rename = "timeShowingAnswers")]
@@ -174,7 +161,7 @@ pub struct Chungus {
 
 impl Chungus {
     fn new(
-        questions: Questions,
+        questions: Vec<QAndA>,
         time_per_question: Option<u128>,
         time_showing_answers: Option<u128>,
         time_showing_leaderboard: Option<u128>,
@@ -196,5 +183,8 @@ impl Chungus {
     }
     pub fn game_start_time(&self) -> &u128 {
         &self.game_start_time
+    }
+    fn answers(&self) -> Vec<Vec<usize>> {
+        self.questions.iter().map(|a| a.correct.clone()).collect()
     }
 }
