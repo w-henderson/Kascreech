@@ -9,6 +9,8 @@ namespace Chungus {
   var gameStartTime: number;
   var chungus: boolean;
 
+  var music: boolean = false;
+
   $.ajaxSetup({
     contentType: "application/json; charset=utf-8"
   });
@@ -126,5 +128,16 @@ namespace Chungus {
         document.getElementById("timer").innerHTML = "<i class='fa fa-clock'></i>" + Math.round((showAnswerTime - new Date().getTime()) / 1000);
       }, f);
     }
+  }
+
+  export function toggleMusic() {
+    if (!music) {
+      (<HTMLAudioElement>document.getElementById("music")).play();
+      document.getElementById("audioButton").innerHTML = "<i class='fas fa-volume-up'></i>";
+    } else {
+      (<HTMLAudioElement>document.getElementById("music")).pause();
+      document.getElementById("audioButton").innerHTML = "<i class='fas fa-volume-mute'></i>";
+    }
+    music = !music;
   }
 }

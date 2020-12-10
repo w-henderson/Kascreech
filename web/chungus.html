@@ -15,6 +15,7 @@
 
 <body class="leaderboard preGame">
     <div id="question">
+        <div id="audioButton" onclick="Chungus.toggleMusic();"><i class="fas fa-volume-mute"></i></div>
         <div id="questionNumber">1/10</div>
         <div id="timer"><i class="fa fa-clock"></i>20</div>
         <div id="qDiv">
@@ -39,7 +40,7 @@
     </div>
     <img src="pog.png">
 
-    <audio autoplay loop><source src="music.mp3" type="audio/mp3"></audio>
+    <audio id="music" loop><source src="music.mp3" type="audio/mp3"></audio>
 </body>
 
 </html>

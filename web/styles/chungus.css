@@ -102,6 +102,22 @@ td {
     transform: scale(0);
 }
 
+.leaderboard.preGame #question #audioButton {
+    position: absolute;
+    top: 2vh;
+    left: 2vh;
+    background-color: #eee;
+    padding: 2vh;
+    box-sizing: border-box;
+    border-radius: 2.5vh;
+    transform: scale(1);
+}
+
+#audioButton {
+    transform: scale(0);
+    cursor: pointer;
+}
+
 #timer {
     position: absolute;
     top: 2vh;

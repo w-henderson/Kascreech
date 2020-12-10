@@ -8,6 +8,7 @@ var Chungus;
     var timeShowingLeaderboard;
     var gameStartTime;
     var chungus;
+    var music = false;
     $.ajaxSetup({
         contentType: "application/json; charset=utf-8"
     });
@@ -115,4 +116,16 @@ var Chungus;
             }, f);
         }
     }
+    function toggleMusic() {
+        if (!music) {
+            document.getElementById("music").play();
+            document.getElementById("audioButton").innerHTML = "<i class='fas fa-volume-up'></i>";
+        }
+        else {
+            document.getElementById("music").pause();
+            document.getElementById("audioButton").innerHTML = "<i class='fas fa-volume-mute'></i>";
+        }
+        music = !music;
+    }
+    Chungus.toggleMusic = toggleMusic;
 })(Chungus || (Chungus = {}));
