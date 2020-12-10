@@ -6,18 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    <script src="scripts/uuid.js"></script>
-    <script src="scripts/client.js"></script>
+    <script src="compiled/uuid.js"></script>
+    <script src="compiled/client.js"></script>
 
-    <script src="scripts/tests/client_test.js"></script>
+    <script src="compiled/tests/client_test.js"></script>
 </head>
 
 <body class="preGame">
     <div id="main">
-        <div id="opt1" onclick="makeGuess(0);"></div>
-        <div id="opt2" onclick="makeGuess(1);"></div>
-        <div id="opt3" onclick="makeGuess(2);"></div>
-        <div id="opt4" onclick="makeGuess(3);"></div>
+        <div id="opt1" onclick="Client.makeGuess(0);"></div>
+        <div id="opt2" onclick="Client.makeGuess(1);"></div>
+        <div id="opt3" onclick="Client.makeGuess(2);"></div>
+        <div id="opt4" onclick="Client.makeGuess(3);"></div>
         <img src="pog.png">
     </div>
     
@@ -25,7 +25,7 @@
         <img src="logo.png">
         <input id="id" placeholder="Game Pin" autocomplete="off">
         <input id="username" placeholder="Username" autocomplete="off">
-        <input type="button" onclick="generateGame();" value="Enter">
+        <input type="button" onclick="Client.generateGame();" value="Enter">
     </div>
 
     <div id="leaderboard">
