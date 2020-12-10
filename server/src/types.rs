@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize)]
 pub struct Guess {
     #[serde(rename = "gameId")]
     pub game_id: String,
@@ -8,7 +8,7 @@ pub struct Guess {
     pub score: u32,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Serialize)]
 pub struct SetupGame {
     answers: Vec<Vec<usize>>,
     #[serde(rename = "timePerQuestion")]
@@ -39,16 +39,16 @@ impl SetupGame {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize)]
 pub struct GameIdRequest {
     #[serde(rename = "gameId")]
     pub game_id: String,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize)]
 pub struct GUIDRequest {
     #[serde(rename = "gameId")]
     pub game_id: String,
-	pub uuid: String,
-	pub username: String,
+    pub uuid: String,
+    pub username: String,
 }

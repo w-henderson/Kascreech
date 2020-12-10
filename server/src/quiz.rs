@@ -8,7 +8,7 @@ use crate::types::{Guess, SetupGame};
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct Games {
     pub games: Vec<Game>,
 }
@@ -34,7 +34,6 @@ impl Games {
     }
 }
 
-#[derive(Debug)]
 pub struct Game {
     pub players: Vec<Player>,
     chungus: Chungus,
@@ -100,7 +99,7 @@ impl Game {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, PartialEq, Eq)]
 pub struct Player {
     uuid: String,
     username: String,
@@ -129,7 +128,7 @@ impl Ord for Player {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize)]
 pub struct QAndA {
     // The given input question
     question: String,
@@ -139,7 +138,7 @@ pub struct QAndA {
     correct: Vec<usize>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+#[derive(Serialize)]
 pub struct Chungus {
     #[serde(rename = "bigChungus")]
     big_chungus: bool,
