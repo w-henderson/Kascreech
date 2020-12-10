@@ -1,7 +1,7 @@
 mod quiz;
 mod types;
 
-use std::sync::Mutex;
+use std::{sync::Mutex, time::SystemTime};
 
 use actix_cors::Cors;
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
@@ -40,8 +40,17 @@ async fn generate_game(
         .find(|a| a.game_id() == request.game_id)
     {
         Some(game) => {
-            game.add_player((request.uuid.clone(), request.username.clone()));
-            HttpResponse::Ok().json(&game.as_setup_game())
+            if SystemTime::now()
+                .duration_since(SystemTime::UNIX_EPOCH)
+                .unwrap()
+                .as_millis()
+                < *game.chungus().game_start_time()
+            {
+                game.add_player((request.uuid.clone(), request.username.clone()));
+                HttpResponse::Ok().json(&game.as_setup_game())
+            } else {
+                HttpResponse::NotFound().finish()
+            }
         }
         None => HttpResponse::NotFound().finish(),
     }

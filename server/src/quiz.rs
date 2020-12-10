@@ -177,4 +177,7 @@ impl Chungus {
             game_id,
         }
     }
+    pub fn game_start_time(&self) -> &u128 {
+        &self.game_start_time
+    }
 }
