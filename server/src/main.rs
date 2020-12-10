@@ -4,14 +4,10 @@ mod types;
 use std::{sync::Mutex, time::SystemTime};
 
 use actix_cors::Cors;
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{web, App, HttpResponse, HttpServer};
 
 use quiz::Games;
 use types::{GUIDRequest, GameIdRequest, Guess};
-
-async fn hello_world() -> impl Responder {
-    "Hello, World!".to_string()
-}
 
 async fn handle_guess(request: web::Json<Guess>, games: web::Data<Mutex<Games>>) -> HttpResponse {
     let mut games = games.lock().unwrap();
@@ -92,7 +88,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(cors)
             .app_data(games.clone())
-            .route("/test", web::get().to(hello_world))
+            .service(actix_files::Files::new("/", "../web").show_files_listing())
             .route("/leaderboard", web::post().to(leaderboard))
             .route("/generateGame", web::post().to(generate_game))
             .route("/makeGuess", web::post().to(handle_guess))
