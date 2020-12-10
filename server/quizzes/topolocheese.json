@@ -86,18 +86,6 @@
       ]
     },
     {
-      "question": "What is a Local Area Network?",
-      "responses": [
-        "A network over a small geographical area",
-        "A network over a large geographical area",
-        "A network owned by a local authority",
-        "A type of cheese from the Locale Areae Networke region of France"
-      ],
-      "correct": [
-        0
-      ]
-    },
-    {
       "question": "!Define the word 'cheese'.",
       "responses": [
         "A food made from the pressed curds of milk",
