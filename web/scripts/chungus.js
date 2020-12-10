@@ -88,7 +88,7 @@ function updateQuestion(question, index) {
             return;
           }
           document.getElementById("leaderboardTable").innerHTML +=
-            `<tr><td>${i + 1}</td><td>${user.uuid}</td><td>${user.score}</td></tr>`;
+            `<tr><td>${i + 1}</td><td>${user.username}</td><td>${user.score}</td></tr>`;
           i += 1;
         });
       });
