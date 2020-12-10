@@ -71,8 +71,8 @@ impl Game {
             }
         }
     }
-    pub fn add_player(&mut self, uuid: String) {
-        let new_player = Player::from(uuid);
+    pub fn add_player(&mut self, id: (String, String)) {
+        let new_player = Player::from(id);
         self.players.players.push(new_player);
     }
     pub fn sort(&mut self) {
@@ -91,12 +91,17 @@ pub struct Players {
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 struct Player {
     uuid: String,
+    username: String,
     score: u32,
 }
 
-impl From<String> for Player {
-    fn from(uuid: String) -> Self {
-        Self { uuid, score: 0 }
+impl From<(String, String)> for Player {
+    fn from(id: (String, String)) -> Self {
+        Self {
+            uuid: id.0,
+            username: id.1,
+            score: 0,
+        }
     }
 }
 

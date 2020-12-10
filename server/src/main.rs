@@ -40,7 +40,7 @@ async fn generate_game(
         .find(|a| a.game_id() == request.game_id)
     {
         Some(game) => {
-            game.add_player(request.uuid.clone());
+            game.add_player((request.uuid.clone(), request.username.clone()));
             HttpResponse::Ok().json(&game.as_setup_game())
         }
         None => HttpResponse::NotFound().finish(),

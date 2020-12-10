@@ -49,5 +49,6 @@ pub struct GameIdRequest {
 pub struct GUIDRequest {
     #[serde(rename = "gameId")]
     pub game_id: String,
-    pub uuid: String,
+	pub uuid: String,
+	pub username: String,
 }
