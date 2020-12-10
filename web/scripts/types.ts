@@ -25,7 +25,7 @@ interface Leaderboard {
 interface ChungusGameInfo {
     bigChungus: boolean,
     gameId: string,
-    questions: { questions: Question[] },
+    questions: Question[],
     timePerQuestion: number,
     timeShowingAnswers: number,
     timeShowingLeaderboard: number,

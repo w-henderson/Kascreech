@@ -32,7 +32,7 @@ namespace Chungus {
   // sets up all the timeouts and stuff
   export function setUpGame(data: ChungusGameInfo) {
     gameId = data.gameId;
-    questions = data.questions.questions;
+    questions = data.questions;
     timePerQuestion = data.timePerQuestion;
     timeShowingAnswers = data.timeShowingAnswers;
     timeShowingLeaderboard = data.timeShowingLeaderboard;

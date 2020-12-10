@@ -29,7 +29,7 @@ var Chungus;
     // sets up all the timeouts and stuff
     function setUpGame(data) {
         gameId = data.gameId;
-        questions = data.questions.questions;
+        questions = data.questions;
         timePerQuestion = data.timePerQuestion;
         timeShowingAnswers = data.timeShowingAnswers;
         timeShowingLeaderboard = data.timeShowingLeaderboard;
