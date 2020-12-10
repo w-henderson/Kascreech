@@ -1,5 +1,6 @@
 use std::{
     cmp::Ordering,
+    iter::repeat_with,
     time::{Duration, SystemTime},
 };
 
@@ -12,7 +13,18 @@ pub struct Games {
     pub games: Vec<Game>,
 }
 
-#[derive(Debug, Default)]
+impl Games {
+    pub fn generate_new_game(&mut self, questions: Questions) {
+        let game_id: String = repeat_with(fastrand::alphanumeric).take(6).collect();
+        let new_game = Game::new(game_id, questions, None, None, None);
+        self.games.push(new_game);
+    }
+    pub fn last(&self) -> Option<&Game> {
+        self.games.last()
+    }
+}
+
+#[derive(Debug)]
 pub struct Game {
     game_id: String,
     pub players: Players,
@@ -49,6 +61,7 @@ impl Game {
             Some(self.chungus.time_per_question),
             Some(self.chungus.time_showing_answers),
             Some(self.chungus.time_showing_leaderboard),
+            self.chungus.game_start_time,
         )
     }
     pub fn add_score(&mut self, guess: Guess) {
@@ -57,6 +70,10 @@ impl Game {
                 player.score += guess.score;
             }
         }
+    }
+    pub fn add_player(&mut self, uuid: String) {
+        let new_player = Player::from(uuid);
+        self.players.players.push(new_player);
     }
     pub fn sort(&mut self) {
         self.players.players.sort();
@@ -77,15 +94,21 @@ struct Player {
     score: u32,
 }
 
+impl From<String> for Player {
+    fn from(uuid: String) -> Self {
+        Self { uuid, score: 0 }
+    }
+}
+
 impl PartialOrd for Player {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.score.cmp(&other.score))
+        Some(other.score.cmp(&self.score))
     }
 }
 
 impl Ord for Player {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.score.cmp(&other.score)
+        other.score.cmp(&self.score)
     }
 }
 
@@ -119,7 +142,7 @@ pub struct Chungus {
     time_per_question: u64, // this is milliseconds
     #[serde(rename = "timeShowingAnswers")]
     time_showing_answers: u64, // also milliseconds
-    #[serde(rename = "timeShowingLeaderboard ")]
+    #[serde(rename = "timeShowingLeaderboard")]
     time_showing_leaderboard: u64,
     #[serde(rename = "gameStartTime")]
     game_start_time: u128, // timestamp in milliseconds of when the game starts
@@ -144,7 +167,8 @@ impl Chungus {
             game_start_time: SystemTime::now()
                 .duration_since(SystemTime::UNIX_EPOCH)
                 .unwrap_or_else(|_| Duration::from_millis(0))
-                .as_millis(),
+                .as_millis()
+                + 30_000,
             game_id,
         }
     }
