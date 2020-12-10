@@ -34,8 +34,13 @@ impl Games {
     }
 }
 
-pub struct Game {
+#[derive(Serialize, Default)]
+pub struct Players {
     pub players: Vec<Player>,
+}
+
+pub struct Game {
+    pub players: Players,
     chungus: Chungus,
     // The timestamp of when the game should die
     to_remove: u128,
@@ -63,7 +68,7 @@ impl Game {
                 + chungus.time_showing_leaderboard)
                 * len;
         Self {
-            players: Vec::default(),
+            players: Players::default(),
             chungus,
             to_remove,
         }
@@ -81,7 +86,7 @@ impl Game {
         )
     }
     pub fn add_score(&mut self, guess: Guess) {
-        for player in self.players.iter_mut() {
+        for player in self.players.players.iter_mut() {
             if player.uuid == guess.uuid {
                 player.score += guess.score;
             }
@@ -89,10 +94,10 @@ impl Game {
     }
     pub fn add_player(&mut self, id: (String, String)) {
         let new_player = Player::from(id);
-        self.players.push(new_player);
+        self.players.players.push(new_player);
     }
     pub fn sort(&mut self) {
-        self.players.sort();
+        self.players.players.sort();
     }
     pub fn game_id(&self) -> &str {
         &self.chungus.game_id
