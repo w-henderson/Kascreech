@@ -71,6 +71,7 @@ td {
     max-width: 50vw;
     text-overflow: ellipsis;
     overflow: hidden;
+    white-space: nowrap;
 }
 
 .leaderboard #question #qDiv #leaderboard {
