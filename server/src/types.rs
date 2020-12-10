@@ -12,11 +12,11 @@ pub struct Guess {
 pub struct SetupGame {
     answers: Vec<Vec<usize>>,
     #[serde(rename = "timePerQuestion")]
-    time_per_question: u64, // this is milliseconds
+    time_per_question: u128, // this is milliseconds
     #[serde(rename = "timeShowingAnswers")]
-    time_showing_answers: u64, // also milliseconds
+    time_showing_answers: u128, // also milliseconds
     #[serde(rename = "timeShowingLeaderboard")]
-    time_showing_leaderboard: u64,
+    time_showing_leaderboard: u128,
     #[serde(rename = "gameStartTime")]
     game_start_time: u128, // timestamp in milliseconds of when the game starts so they're all 100% in sync, should be at least 30 seconds after request is made
 }
@@ -24,9 +24,9 @@ pub struct SetupGame {
 impl SetupGame {
     pub fn new(
         answers: Vec<Vec<usize>>,
-        time_per_question: Option<u64>,
-        time_showing_answers: Option<u64>,
-        time_showing_leaderboard: Option<u64>,
+        time_per_question: Option<u128>,
+        time_showing_answers: Option<u128>,
+        time_showing_leaderboard: Option<u128>,
         game_start_time: u128,
     ) -> Self {
         Self {

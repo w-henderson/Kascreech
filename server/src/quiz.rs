@@ -15,41 +15,58 @@ pub struct Games {
 
 impl Games {
     pub fn generate_new_game(&mut self, questions: Questions) {
-        let game_id: String = repeat_with(fastrand::alphanumeric).take(6).collect();
+        let game_id: String = repeat_with(|| fastrand::digit(10)).take(6).collect();
         let new_game = Game::new(game_id, questions, None, None, None);
         self.games.push(new_game);
     }
     pub fn last(&self) -> Option<&Game> {
         self.games.last()
     }
+    /*pub fn check(&mut self) {
+        self.games.iter_mut().fil(|game| {
+            SystemTime::now()
+                .duration_since(SystemTime::UNIX_EPOCH)
+                .unwrap()
+                .as_millis()
+                > game.to_remove
+        });
+    }*/
 }
 
 #[derive(Debug)]
 pub struct Game {
-    game_id: String,
+    //game_id: String,
     pub players: Players,
     chungus: Chungus,
+    to_remove: u128,
 }
 
 impl Game {
     pub fn new(
         game_id: String,
         questions: Questions,
-        time_per_question: Option<u64>,
-        time_showing_answers: Option<u64>,
-        time_showing_leaderboard: Option<u64>,
+        time_per_question: Option<u128>,
+        time_showing_answers: Option<u128>,
+        time_showing_leaderboard: Option<u128>,
     ) -> Self {
         let chungus = Chungus::new(
             questions,
             time_per_question,
             time_showing_answers,
             time_showing_leaderboard,
-            game_id.clone(),
-        );
-        Self {
             game_id,
+        );
+        let len = chungus.questions.questions.len() as u128;
+        let to_remove = chungus.game_start_time
+            + (chungus.time_per_question
+                + chungus.time_showing_answers
+                + chungus.time_showing_leaderboard)
+                * len;
+        Self {
+            //game_id,
             players: Players::default(),
             chungus,
+            to_remove,
         }
     }
     pub fn chungus(&self) -> &Chungus {
@@ -79,7 +96,7 @@ impl Game {
         self.players.players.sort();
     }
     pub fn game_id(&self) -> &str {
-        &self.game_id
+        &self.chungus.game_id
     }
 }
 
@@ -144,11 +161,11 @@ pub struct Chungus {
     big_chungus: bool,
     questions: Questions,
     #[serde(rename = "timePerQuestion")]
-    time_per_question: u64, // this is milliseconds
+    time_per_question: u128, // this is milliseconds
     #[serde(rename = "timeShowingAnswers")]
-    time_showing_answers: u64, // also milliseconds
+    time_showing_answers: u128, // also milliseconds
     #[serde(rename = "timeShowingLeaderboard")]
-    time_showing_leaderboard: u64,
+    time_showing_leaderboard: u128,
     #[serde(rename = "gameStartTime")]
     game_start_time: u128, // timestamp in milliseconds of when the game starts
     #[serde(rename = "gameId")]
@@ -158,9 +175,9 @@ pub struct Chungus {
 impl Chungus {
     fn new(
         questions: Questions,
-        time_per_question: Option<u64>,
-        time_showing_answers: Option<u64>,
-        time_showing_leaderboard: Option<u64>,
+        time_per_question: Option<u128>,
+        time_showing_answers: Option<u128>,
+        time_showing_leaderboard: Option<u128>,
         game_id: String,
     ) -> Self {
         Self {

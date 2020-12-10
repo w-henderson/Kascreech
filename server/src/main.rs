@@ -42,7 +42,8 @@ async fn generate_game(
                 .as_millis()
                 < *game.chungus().game_start_time()
             {
-                game.add_player((request.uuid.clone(), request.username.clone()));
+                let id = request.into_inner();
+                game.add_player((id.uuid, id.username));
                 HttpResponse::Ok().json(&game.as_setup_game())
             } else {
                 HttpResponse::NotFound().finish()
