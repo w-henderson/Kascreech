@@ -14,29 +14,31 @@ pub struct Games {
 }
 
 impl Games {
+    /// Adds a game with specified quesions
     pub fn generate_new_game(&mut self, questions: Vec<QAndA>) {
         let game_id: String = repeat_with(|| fastrand::digit(10)).take(6).collect();
         let new_game = Game::new(game_id, questions, None, None, None);
         self.games.push(new_game);
     }
-    pub fn last(&self) -> Option<&Game> {
-        self.games.last()
-    }
-    /*pub fn check(&mut self) {
-        self.games.iter_mut().fil(|game| {
+    /// Checks over `self`, looking for games that're
+    /// alive for longer than their lifetime, removing
+    /// them if they are
+    pub fn check(&mut self) {
+        self.games.drain_filter(|game| {
             SystemTime::now()
                 .duration_since(SystemTime::UNIX_EPOCH)
                 .unwrap()
                 .as_millis()
                 > game.to_remove
         });
-    }*/
+    }
 }
 
 #[derive(Debug)]
 pub struct Game {
-    pub players: Players,
+    pub players: Vec<Player>,
     chungus: Chungus,
+    // The timestamp of when the game should die
     to_remove: u128,
 }
 
@@ -62,7 +64,7 @@ impl Game {
                 + chungus.time_showing_leaderboard)
                 * len;
         Self {
-            players: Players::default(),
+            players: Vec::default(),
             chungus,
             to_remove,
         }
@@ -80,7 +82,7 @@ impl Game {
         )
     }
     pub fn add_score(&mut self, guess: Guess) {
-        for player in self.players.players.iter_mut() {
+        for player in self.players.iter_mut() {
             if player.uuid == guess.uuid {
                 player.score += guess.score;
             }
@@ -88,23 +90,18 @@ impl Game {
     }
     pub fn add_player(&mut self, id: (String, String)) {
         let new_player = Player::from(id);
-        self.players.players.push(new_player);
+        self.players.push(new_player);
     }
     pub fn sort(&mut self) {
-        self.players.players.sort();
+        self.players.sort();
     }
     pub fn game_id(&self) -> &str {
         &self.chungus.game_id
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Default, Ord, PartialOrd)]
-pub struct Players {
-    players: Vec<Player>,
-}
-
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
-struct Player {
+pub struct Player {
     uuid: String,
     username: String,
     score: u32,

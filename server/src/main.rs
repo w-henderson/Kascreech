@@ -1,3 +1,5 @@
+#![feature(drain_filter)]
+
 mod quiz;
 mod types;
 
@@ -24,7 +26,7 @@ async fn handle_guess(request: web::Json<Guess>, games: web::Data<Mutex<Games>>)
     }
 }
 
-async fn generate_game(
+async fn send_game_info(
     request: web::Json<GUIDRequest>,
     games: web::Data<Mutex<Games>>,
 ) -> HttpResponse {
@@ -55,10 +57,12 @@ async fn generate_game(
 
 async fn chungus(games: web::Data<Mutex<Games>>) -> HttpResponse {
     let mut games = games.lock().unwrap();
+    games.check();
+
     let rdr = std::fs::File::open("quizzes/topolocheese.json").unwrap();
     let questions = serde_json::from_reader(rdr).unwrap();
     games.generate_new_game(questions);
-    HttpResponse::Ok().json(&games.last().unwrap().chungus())
+    HttpResponse::Ok().json(&games.games.last().unwrap().chungus())
 }
 
 async fn leaderboard(
@@ -90,7 +94,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .app_data(games.clone())
             .route("/leaderboard", web::post().to(leaderboard))
-            .route("/generateGame", web::post().to(generate_game))
+            .route("/generateGame", web::post().to(send_game_info))
             .route("/makeGuess", web::post().to(handle_guess))
             .route("/chungusGameInfo", web::post().to(chungus))
             .service(actix_files::Files::new("/", "../web").index_file("index.html"))
