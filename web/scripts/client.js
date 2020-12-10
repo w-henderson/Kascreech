@@ -1,4 +1,4 @@
-const SERVER_IP = "http://kascreech.rack.ga";
+const SERVER_IP = "http://10.82.130.103";
 const USER_ID = uuidv4();
 
 var gameId;
@@ -11,6 +11,7 @@ var gameStartTime;
 var currentQuestion;
 var questionStartTime;
 var score = 0;
+var questionIndex = -1;
 
 $.ajaxSetup({
   contentType: "application/json; charset=utf-8"
@@ -18,7 +19,7 @@ $.ajaxSetup({
 
 function generateGame() {
   gameId = document.getElementById("id").value;
-  $.post(SERVER_IP + "/generateGame", JSON.stringify({ gameId }))
+  $.post(SERVER_IP + "/generateGame", JSON.stringify({ gameId, uuid: USER_ID }))
     .done(function (data) {
       setUpGame(data, gameId);
     })
@@ -48,19 +49,28 @@ function setUpGame(data, id) {
   window.setTimeout(function () { // timeout to start game at right time
     console.log("started game");
     answers.forEach((question, index) => { // for each question
+      console.log("tried to set timeout at " + (index * (timePerQuestion + timeShowingAnswers + timeShowingLeaderboard)));
       window.setTimeout(function () { // set a timeout to happen at the start of the question
-        updateQuestion(question, index); // update to that question
+        updateQuestion(question); // update to that question
       }, index * (timePerQuestion + timeShowingAnswers + timeShowingLeaderboard));
     });
   }, gameStartTime - new Date().getTime());
 }
 
-function updateQuestion(question, index) {
+function updateQuestion(question) {
+  questionIndex++;
+  console.log("updated question");
   document.body.className = "";
   currentQuestion = question;
-  questionStartTime = gameStartTime + index * (timePerQuestion + timeShowingAnswers + timeShowingLeaderboard);
+  questionStartTime = gameStartTime + questionIndex * (timePerQuestion + timeShowingAnswers + timeShowingLeaderboard);
   questionEndTime = questionStartTime + timePerQuestion;
   score = 0;
+
+  console.log({
+    questionStartTime,
+    questionEndTime,
+    now: new Date().getTime()
+  });
 
   window.setTimeout(function () {
     document.body.className = "leaderboard";
@@ -68,7 +78,7 @@ function updateQuestion(question, index) {
     document.getElementById("leaderboard").innerHTML = correctString + "<br>Leaderboard position loading...";
     $.post(SERVER_IP + "/leaderboard", JSON.stringify({ gameId }))
       .done(function (data) {
-        data.forEach(function (player, index) {
+        data.players.forEach(function (player, index) {
           if (player.uuid == USER_ID) {
             document.getElementById("leaderboard").innerHTML = correctString + `<br>You're in place ${index + 1}.`;
           }
