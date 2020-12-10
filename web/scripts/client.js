@@ -58,8 +58,8 @@ function setUpGame(data, id) {
 function updateQuestion(question, index) {
   document.body.className = "";
   currentQuestion = question;
-  questionStartTime = new Date().getTime();
-  questionEndTime = questionStartTime + index * timePerQuestion;
+  questionStartTime = gameStartTime + index * (timePerQuestion + timeShowingAnswers + timeShowingLeaderboard);
+  questionEndTime = questionStartTime + timePerQuestion;
   score = 0;
 
   window.setTimeout(function () {
@@ -74,7 +74,7 @@ function updateQuestion(question, index) {
           }
         });
       });
-  }, timeShowingAnswers - new Date().getTime());
+  }, questionEndTime - new Date().getTime());
 }
 
 function makeGuess(id) {
