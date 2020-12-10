@@ -19,7 +19,8 @@ $.ajaxSetup({
 
 function generateGame() {
   gameId = document.getElementById("id").value;
-  $.post(SERVER_IP + "/generateGame", JSON.stringify({ gameId, uuid: USER_ID }))
+  username = document.getElementById("username").value;
+  $.post(SERVER_IP + "/generateGame", JSON.stringify({ gameId, uuid: USER_ID, username }))
     .done(function (data) {
       setUpGame(data, gameId);
     })
