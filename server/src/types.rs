@@ -9,8 +9,8 @@ pub struct Guess {
 }
 
 #[derive(Serialize)]
-pub struct SetupGame {
-    answers: Vec<Vec<usize>>,
+pub struct SetupGame<'a> {
+    answers: Vec<&'a Vec<usize>>,
     #[serde(rename = "timePerQuestion")]
     time_per_question: u128, // this is milliseconds
     #[serde(rename = "timeShowingAnswers")]
@@ -21,9 +21,9 @@ pub struct SetupGame {
     game_start_time: u128, // timestamp in milliseconds of when the game starts so they're all 100% in sync, should be at least 30 seconds after request is made
 }
 
-impl SetupGame {
+impl<'a> SetupGame<'a> {
     pub fn new(
-        answers: Vec<Vec<usize>>,
+        answers: Vec<&'a Vec<usize>>,
         time_per_question: Option<u128>,
         time_showing_answers: Option<u128>,
         time_showing_leaderboard: Option<u128>,
