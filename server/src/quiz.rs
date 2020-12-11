@@ -24,13 +24,11 @@ impl Games {
     /// alive for longer than their lifetime, removing
     /// them if they are
     pub fn check(&mut self) {
-        self.games.drain_filter(|game| {
-            SystemTime::now()
-                .duration_since(SystemTime::UNIX_EPOCH)
-                .unwrap()
-                .as_millis()
-                > game.to_remove
-        });
+        let now = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_millis();
+        self.games.drain_filter(|game| now > game.to_remove);
     }
 }
 
