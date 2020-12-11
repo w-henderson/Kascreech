@@ -86,10 +86,11 @@ impl Game {
         )
     }
     pub fn add_score(&mut self, guess: Guess) {
-        for player in self.players.players.iter_mut() {
-            if player.uuid == guess.uuid {
-                player.score += guess.score;
-            }
+        let uuid = guess.uuid;
+        let score = guess.score;
+        match self.players.players.iter_mut().find(|p| p.uuid == uuid) {
+            Some(p) => p.score += score,
+            None => {}
         }
     }
     pub fn add_player(&mut self, id: (String, String)) {
@@ -182,7 +183,7 @@ impl Chungus {
             game_id,
         }
     }
-    pub fn game_start_time(&self) -> &u128 {
+    pub const fn game_start_time(&self) -> &u128 {
         &self.game_start_time
     }
     fn answers(&self) -> Vec<&Vec<usize>> {

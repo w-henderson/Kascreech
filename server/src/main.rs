@@ -60,8 +60,7 @@ async fn chungus(games: web::Data<Mutex<Games>>) -> HttpResponse {
     games.check();
 
     let rdr = std::fs::File::open("quizzes/topolocheese.json").unwrap();
-    let questions = serde_json::from_reader(rdr).unwrap();
-    games.generate_new_game(questions);
+    games.generate_new_game(serde_json::from_reader(rdr).unwrap());
     HttpResponse::Ok().json(&games.games.last().unwrap().chungus())
 }
 
