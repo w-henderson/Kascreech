@@ -1,5 +1,5 @@
 namespace Chungus {
-  const SERVER_IP: string = "http://kascreech.rack.ga";
+  const SERVER_IP: string = "";
 
   var gameId: string;
   var questions: Question[];

@@ -1,6 +1,6 @@
 var Client;
 (function (Client) {
-    var SERVER_IP = "http://kascreech.rack.ga";
+    var SERVER_IP = "";
     var USER_ID = uuidv4();
     var gameId;
     var answers;

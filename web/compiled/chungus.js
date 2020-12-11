@@ -1,6 +1,6 @@
 var Chungus;
 (function (Chungus) {
-    var SERVER_IP = "http://kascreech.rack.ga";
+    var SERVER_IP = "";
     var gameId;
     var questions;
     var timePerQuestion;

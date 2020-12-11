@@ -1,5 +1,5 @@
 namespace Client {
-  const SERVER_IP = "http://kascreech.rack.ga";
+  const SERVER_IP = "";
   const USER_ID = uuidv4();
 
   var gameId: string;
