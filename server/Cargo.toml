@@ -4,9 +4,10 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-salvo = "0.11.6"
-tokio = { version = "^1.8", features = ["full"] }
-ureq = { version = "^2.1", features = ["json"] }
-serde = { version = "^1", features = ["derive"]}
+tokio-tungstenite = "0.15.0"
+actix-web = "^3.3"
+actix-cors = "^0.5"
+actix-files = "^0.5"
+serde = {version = "^1", features = ["derive"]}
 serde_json = "*"
 fastrand = "^1.4"
