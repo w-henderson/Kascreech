@@ -33,7 +33,8 @@ class App extends React.Component<{}, AppState> {
     }
   }
 
-  reset() {
+  reset(message: string) {
+    alert(message);
     this.setState({
       phase: AppPhase.Initial,
       hostID: "",
@@ -56,7 +57,7 @@ class App extends React.Component<{}, AppState> {
             <h2>Join Game</h2>
             <input placeholder="Game ID" value={this.state.joinID} onChange={e => this.setState({ joinID: e.target.value })} />
             <input placeholder="Name" value={this.state.joinName} onChange={e => this.setState({ joinName: e.target.value })} />
-            <button>Join</button>
+            <button onClick={() => this.setState({ phase: AppPhase.Player })}>Join</button>
           </div>
         </div>
       )

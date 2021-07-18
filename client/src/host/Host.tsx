@@ -17,7 +17,7 @@ enum HostPhase {
 
 interface HostProps {
   kahootID: string,
-  onFailure: () => void
+  onFailure: (message: string) => void
 }
 
 interface HostState {
@@ -109,6 +109,9 @@ class Host extends React.Component<HostProps, HostState> {
           questionCount: data.questionCount,
           phase: HostPhase.Lobby
         })
+      } else {
+        this.websocket?.close();
+        this.props.onFailure(data.message);
       }
     } else if (this.state.phase === HostPhase.Lobby) {
       if (data.event === "newPlayer") {
