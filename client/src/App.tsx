@@ -63,11 +63,16 @@ class App extends React.Component<{}, AppState> {
       )
     } else if (this.state.phase === AppPhase.Host) {
       return (
-        <Host kahootID={this.state.hostID} onFailure={this.reset} />
+        <Host
+          kahootID={this.state.hostID}
+          onFailure={this.reset} />
       )
     } else if (this.state.phase === AppPhase.Player) {
       return (
-        <Player />
+        <Player
+          gameId={this.state.joinID}
+          userName={this.state.joinName}
+          onFailure={this.reset} />
       )
     }
   }

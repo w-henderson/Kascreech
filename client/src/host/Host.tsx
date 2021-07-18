@@ -3,7 +3,7 @@ import { SERVER_ADDR } from '../App';
 import '../styles/Host.scss';
 
 import Lobby from "./Lobby";
-import DisplayQuestion from './Question';
+import HostQuestion from './HostQuestion';
 import Leaderboard from './Leaderboard';
 
 enum HostPhase {
@@ -146,7 +146,7 @@ class Host extends React.Component<HostProps, HostState> {
       )
     } else if ((this.state.phase === HostPhase.Question || this.state.phase === HostPhase.Answer) && this.state.currentQuestion) {
       return (
-        <DisplayQuestion
+        <HostQuestion
           question={this.state.currentQuestion}
           questionNumber={this.state.questionNumber}
           showCorrect={this.state.phase === HostPhase.Answer}

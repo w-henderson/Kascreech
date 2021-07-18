@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/Question.scss';
+import '../styles/HostQuestion.scss';
 
 interface QuestionProps {
   question: Question,
@@ -13,7 +13,7 @@ interface QuestionState {
   timeRemaining: number
 }
 
-class DisplayQuestion extends React.Component<QuestionProps, QuestionState> {
+class HostQuestion extends React.Component<QuestionProps, QuestionState> {
   updateInterval: NodeJS.Timeout | undefined;
 
   constructor(props: QuestionProps) {
@@ -71,4 +71,4 @@ class DisplayQuestion extends React.Component<QuestionProps, QuestionState> {
   }
 }
 
-export default DisplayQuestion;
+export default HostQuestion;

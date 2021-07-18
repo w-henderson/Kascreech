@@ -17,3 +17,19 @@ Leaderboard:
 ```
 
 # Player
+Accept into lobby:
+```json
+{"status": "success"}
+```
+Question start:
+```json
+{"event": "questionStart", "numberOfAnswers": 4}
+```
+Question end:
+```json
+{"event": "questionEnd", "correct": true, "pointsThisRound": 800, "pointsTotal": 69420, "streak": 2, "position": 3, "behind": "Big Chungus"}
+```
+Game end:
+```json
+{"event": "end", "position": 3}
+```
