@@ -4,9 +4,14 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-salvo = "0.11.6"
+salvo = { version = "0.11.6", features = ["extra"] }
 tokio = { version = "^1.8", features = ["full"] }
 ureq = { version = "^2.1", features = ["json"] }
-serde = { version = "^1", features = ["derive"]}
+
+serde = { version = "^1", features = ["derive"] }
 serde_json = "*"
+
+dashmap = "^4.0"
 fastrand = "^1.4"
+once_cell = "^1.8"
+futures = "^0.3"

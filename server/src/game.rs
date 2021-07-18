@@ -1,28 +1,29 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Default)]
-pub struct Games(Vec<Game>);
+use crate::err::KascreechError;
 
-#[derive(Serialize, Deserialize)]
+use ureq::get;
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Game {
-    title: String,
-    questions: Vec<Question>,
+    pub title: String,
+    pub questions: Vec<Question>,
 }
 
 impl Game {
-    pub fn from_url(path: &str) -> Result<Self, std::io::Error> {
-        ureq::get(path).call().unwrap().into_json::<Self>()
+    pub fn from_url(path: &str) -> Result<Self, KascreechError> {
+        get(path).call()?.into_json().map_err(Into::into)
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Question {
     question: String,
     time: usize,
     choices: Vec<Answer>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Answer {
     answer: String,
     correct: bool,
