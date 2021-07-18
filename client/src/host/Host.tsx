@@ -5,6 +5,7 @@ import '../styles/Host.scss';
 import Lobby from "./Lobby";
 import HostQuestion from './HostQuestion';
 import Leaderboard from './Leaderboard';
+import LobbyLoading from '../LobbyLoading';
 
 enum HostPhase {
   AwaitingLobby,
@@ -132,7 +133,12 @@ class Host extends React.Component<HostProps, HostState> {
   }
 
   render() {
-    if (this.state.phase === HostPhase.AwaitingLobby || this.state.phase === HostPhase.AwaitingQuestion) {
+    if (this.state.phase === HostPhase.AwaitingLobby) {
+      return (
+        <LobbyLoading />
+      )
+    }
+    else if (this.state.phase === HostPhase.AwaitingQuestion) {
       return (
         <div>Loading...</div>
       )

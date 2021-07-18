@@ -2,6 +2,7 @@ import React from 'react';
 import { SERVER_ADDR } from '../App';
 import '../styles/Player.scss';
 
+import LobbyLoading from '../LobbyLoading';
 import PlayerQuestion from './PlayerQuestion';
 import Result from "./Result";
 
@@ -107,7 +108,7 @@ class Player extends React.Component<PlayerProps, PlayerState> {
   render() {
     if (this.state.phase === PlayerPhase.AwaitingLobby) {
       return (
-        <div>Loading...</div>
+        <LobbyLoading />
       )
     } else if (this.state.phase === PlayerPhase.Lobby) {
       return (

@@ -1,11 +1,13 @@
 import React from 'react';
+import './styles/App.scss';
+
+import Home from './Home';
 import Host from './host/Host';
 import Player from './player/Player';
-import './styles/App.scss';
 
 export const SERVER_ADDR = "localhost";
 
-enum AppPhase {
+export enum AppPhase {
   Initial,
   Host,
   Player
@@ -46,20 +48,11 @@ class App extends React.Component<{}, AppState> {
   render() {
     if (this.state.phase === AppPhase.Initial) {
       return (
-        <div>
-          <div>
-            <h2>Host Game</h2>
-            <input placeholder="Kahoot ID" value={this.state.hostID} onChange={e => this.setState({ hostID: e.target.value })} />
-            <button onClick={() => this.setState({ phase: AppPhase.Host })}>Host</button>
-          </div>
-
-          <div>
-            <h2>Join Game</h2>
-            <input placeholder="Game ID" value={this.state.joinID} onChange={e => this.setState({ joinID: e.target.value })} />
-            <input placeholder="Name" value={this.state.joinName} onChange={e => this.setState({ joinName: e.target.value })} />
-            <button onClick={() => this.setState({ phase: AppPhase.Player })}>Join</button>
-          </div>
-        </div>
+        <Home
+          joinID={this.state.joinID}
+          joinName={this.state.joinName}
+          hostID={this.state.hostID}
+          setState={(newState: any) => this.setState(newState)} />
       )
     } else if (this.state.phase === AppPhase.Host) {
       return (
