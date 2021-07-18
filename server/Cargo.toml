@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-salvo = { version = "0.11.6", features = ["extra"] }
 tokio = { version = "^1.8", features = ["full"] }
+tokio-tungstenite = "*"
 ureq = { version = "^2.1", features = ["json"] }
 
 serde = { version = "^1", features = ["derive"] }

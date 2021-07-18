@@ -1,49 +1,31 @@
-use futures::StreamExt;
+use std::iter::repeat_with;
+
+use crate::{game::Game, Write, GAMES};
+
+use futures::SinkExt;
 use serde::{Deserialize, Serialize};
+use tokio_tungstenite::tungstenite::Message;
 
-use salvo::{
-    async_trait, extra::ws::WsHandler, fn_handler, prelude::HttpError, Request, Response, Writer,
-};
+pub async fn host_command(s: &str, write: &mut Write) {
+    let host_request = serde_json::from_str::<HostRequest>(s).unwrap();
 
-use crate::game::Game;
+    let game = Game::from_url(&format!(
+        "https://play.kahoot.it/rest/kahoots/{}",
+        host_request.id
+    ))
+    .unwrap();
 
-#[fn_handler]
-pub async fn new_game_handle(req: &mut Request, res: &mut Response) -> Result<(), HttpError> {
-    let fut = WsHandler::new().handle(req, res)?;
-    let fut = async move {
-        if let Some(ws) = fut.await {
-            let (sink, mut stream) = ws.split();
+    let game_id: String = repeat_with(|| fastrand::digit(10)).take(6).collect();
 
-            if let Some(Ok(msg)) = stream.next().await {
-                println!("{:?}", msg.to_str().unwrap());
-            }
+    let message = Message::Text(serde_json::to_string(&game.make_response(&game_id)).unwrap());
+    write.send(message).await.unwrap();
 
-            // let req = stream.next().await;
-        }
-    };
-    tokio::task::spawn(fut);
-    /*let request = req.read_from_json::<HostRequest>().await.unwrap();
-
-    if &request.command == "host" {
-        if let Ok(game) = Game::from_url(&format!(
-            "https://play.kahoot.it/rest/kahoots/{}",
-            request.id
-        )) {
-            let game_id = repeat_with(|| fastrand::digit(10))
-                .take(6)
-                .collect::<String>();
-
-            res.render_json(&game.make_response(&game_id));
-        }
-    }
-
-    Ok(())*/
+    GAMES.insert(game_id, game).unwrap();
 }
 
 #[derive(Deserialize)]
-struct HostRequest {
-    command: String,
-    id: String,
+struct HostRequest<'a> {
+    id: &'a str,
 }
 
 #[derive(Serialize)]

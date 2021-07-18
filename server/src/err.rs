@@ -2,11 +2,11 @@ use serde::Serialize;
 
 #[derive(Serialize)]
 pub struct FailResponse {
-    successful: bool,
+    success: bool,
     message: KascreechError,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub enum KascreechError {
     IoErr(String),
     UreqError(String),
