@@ -1,26 +1,74 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import './styles/App.scss';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import Home from './Home';
+import Host from './host/Host';
+import Player from './player/Player';
+
+export const SERVER_ADDR = "localhost";
+
+export enum AppPhase {
+  Initial,
+  Host,
+  Player
+}
+
+interface AppState {
+  phase: AppPhase,
+  hostID: string,
+  joinID: string,
+  joinName: string
+}
+
+class App extends React.Component<{}, AppState> {
+  websocket: WebSocket | undefined;
+
+  constructor(props: {}) {
+    super(props);
+    this.reset = this.reset.bind(this);
+
+    this.state = {
+      phase: AppPhase.Initial,
+      hostID: "",
+      joinID: "",
+      joinName: ""
+    }
+  }
+
+  reset(message: string) {
+    alert(message);
+    this.setState({
+      phase: AppPhase.Initial,
+      hostID: "",
+      joinID: "",
+      joinName: ""
+    })
+  }
+
+  render() {
+    if (this.state.phase === AppPhase.Initial) {
+      return (
+        <Home
+          joinID={this.state.joinID}
+          joinName={this.state.joinName}
+          hostID={this.state.hostID}
+          setState={(newState: any) => this.setState(newState)} />
+      )
+    } else if (this.state.phase === AppPhase.Host) {
+      return (
+        <Host
+          kahootID={this.state.hostID}
+          onFailure={this.reset} />
+      )
+    } else if (this.state.phase === AppPhase.Player) {
+      return (
+        <Player
+          gameId={this.state.joinID}
+          userName={this.state.joinName}
+          onFailure={this.reset} />
+      )
+    }
+  }
 }
 
 export default App;

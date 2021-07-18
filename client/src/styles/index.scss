@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;600;800&display=swap');
+
+body, html {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: Montserrat;
+}
+
+div#root {
+  width: 100%;
+  height: 100%;
+
+  --light: white;
+  --dark: #333333;
+  --darker: #262626;
+  --accent-lighter: #864cbf;
+  --accent: #46178f;
+  --accent-darker: #3f1581;
+
+  --red: #e21b3c;
+  --blue: #1368ce;
+  --yellow: #d89e00;
+  --green: #298f0d;
+
+  --button: #45a3e5;
+}
