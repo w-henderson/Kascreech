@@ -24,3 +24,4 @@ yarn-error.log*
 
 # rust pog
 server/target/
+server/log.log
