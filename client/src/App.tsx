@@ -48,24 +48,36 @@ class App extends React.Component<{}, AppState> {
   render() {
     if (this.state.phase === AppPhase.Initial) {
       return (
-        <Home
-          joinID={this.state.joinID}
-          joinName={this.state.joinName}
-          hostID={this.state.hostID}
-          setState={(newState: any) => this.setState(newState)} />
+        <div className="App">
+          <aside className="rectangle" />
+          <aside className="circle" />
+          <Home
+            joinID={this.state.joinID}
+            joinName={this.state.joinName}
+            hostID={this.state.hostID}
+            setState={(newState: any) => this.setState(newState)} />
+        </div>
       )
     } else if (this.state.phase === AppPhase.Host) {
       return (
-        <Host
-          kahootID={this.state.hostID}
-          onFailure={this.reset} />
+        <div className="App">
+          <aside className="rectangle" />
+          <aside className="circle" />
+          <Host
+            kahootID={this.state.hostID}
+            onFailure={this.reset} />
+        </div>
       )
     } else if (this.state.phase === AppPhase.Player) {
       return (
-        <Player
-          gameId={this.state.joinID}
-          userName={this.state.joinName}
-          onFailure={this.reset} />
+        <div className="App">
+          <aside className="rectangle" />
+          <aside className="circle" />
+          <Player
+            gameId={this.state.joinID}
+            userName={this.state.joinName}
+            onFailure={this.reset} />
+        </div>
       )
     }
   }

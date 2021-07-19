@@ -1,6 +1,10 @@
 import React from 'react';
 import '../styles/Lobby.scss';
 
+import logo from "../images/logo.png";
+
+import { PersonRounded } from "@material-ui/icons";
+
 interface LobbyProps {
   gameName: string,
   gameId: string,
@@ -11,17 +15,40 @@ interface LobbyProps {
 class Lobby extends React.Component<LobbyProps> {
   render() {
     return (
-      <div>
-        <h2>{this.props.gameName} - Lobby</h2>
-        Game ID: {this.props.gameId}
+      <div className="Lobby">
+        <header>
+          <div>Join in with the fun by typing in <b>this code</b>!</div>
+          <div>{this.props.gameId}</div>
+        </header>
 
-        <h2>Connected Players:</h2>
-        {this.props.players.length > 0 ? this.props.players.map((player, index) => (
-          <span key={index}>{player}<br /></span>
-        )) : "None"}
+        <div className="top">
+          <div>
+            <PersonRounded />
+            <span>{this.props.players.length}</span>
+          </div>
+          <div>
+            <img src={logo} alt="Kascreech logo" />
+          </div>
+          <div>
+            <button onClick={this.props.startCallback}>Start</button>
+          </div>
+        </div>
 
-        <h2>Start Game</h2>
-        <button onClick={this.props.startCallback}>Start Game</button>
+        {this.props.players.length > 0 &&
+          <div className="names">
+            {this.props.players.map((value, index) =>
+              <div key={index}>{value}</div>
+            )}
+          </div>
+        }
+
+        {this.props.players.length === 0 &&
+          <div className="empty">
+            <div>
+              Waiting for players...
+            </div>
+          </div>
+        }
       </div>
     )
   }

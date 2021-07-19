@@ -103,7 +103,7 @@ class Host extends React.Component<HostProps, HostState> {
   wsHandler(e: MessageEvent<any>) {
     let data = JSON.parse(e.data);
     if (this.state.phase === HostPhase.AwaitingLobby) {
-      if (data.status === "success") {
+      if (data.success === true) {
         this.setState({
           gameId: data.gameId,
           gameName: data.gameName,
@@ -133,14 +133,9 @@ class Host extends React.Component<HostProps, HostState> {
   }
 
   render() {
-    if (this.state.phase === HostPhase.AwaitingLobby) {
+    if (this.state.phase === HostPhase.AwaitingLobby || this.state.phase === HostPhase.AwaitingQuestion) {
       return (
         <LobbyLoading />
-      )
-    }
-    else if (this.state.phase === HostPhase.AwaitingQuestion) {
-      return (
-        <div>Loading...</div>
       )
     } else if (this.state.phase === HostPhase.Lobby) {
       return (

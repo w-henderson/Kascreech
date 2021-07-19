@@ -6,12 +6,11 @@ import loading from "./images/loading.svg";
 class LobbyLoading extends React.Component {
   render() {
     return (
-      <div className="Home">
-        <aside className="rectangle" />
-        <aside className="circle" />
-        <div>
-          <img src={loading} className="loader" />
-        </div>
+      <div>
+        <img
+          src={loading}
+          className="loader"
+          alt="Loading animation" />
       </div>
     )
   }

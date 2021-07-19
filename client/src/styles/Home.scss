@@ -1,121 +1,90 @@
 div.Home {
-  width: 100%;
-  height: 100%;
-  background-color: var(--accent);
-  display: flex;
-  place-items: center;
-  place-content: center;
+  position: relative;
+  text-align: center;
+  z-index: 1;
+
+  img {
+    filter: brightness(1000%);
+    width: 250px;
+    max-width: 70vw;
+    margin: 0 0 32px 0;
+  }
 
   > div {
-    position: relative;
-    text-align: center;
-    z-index: 1;
+    width: 320px;
+    max-width: 85vw;
+    background-color: var(--light);
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    padding-bottom: 16px;
+    overflow: hidden;
 
-    img {
-      filter: brightness(1000%);
-      width: 250px;
-      max-width: 70vw;
-      margin: 0 0 32px 0;
+    div {
+      width: 100%;
+      display: flex;
+      background-color: #e8e8e8;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+      margin-bottom: 16px;
 
-      &.loader {
-        max-width: 64px;
-        animation: loading 1s linear infinite;
-        margin: 0;
-      }
-    }
-
-    > div {
-      width: 320px;
-      max-width: 85vw;
-      background-color: var(--light);
-      border-radius: 6px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-      padding-bottom: 16px;
-      overflow: hidden;
-
-      div {
-        width: 100%;
-        display: flex;
-        background-color: #e8e8e8;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.15);
-        margin-bottom: 16px;
-
-        span {
-          flex: 1;
-          text-align: center;
-          padding: 16px;
-          cursor: pointer;
-
-          &:first-child {
-            border-right: 1px solid rgba(0, 0, 0, 0.15);
-          }
-
-          &.active, &:hover {
-            background-color: #f8f8f8;
-          }
-        }
-      }
-
-      input {
-        width: calc(100% - 32px);
-        height: 48px;
-        border: 2px solid rgba(0, 0, 0, 0.2);
-        border-radius: 4px;
-        margin: 0 16px 8px 16px;
-        outline: none;
-        &:last-child { margin: 0 16px -2px 16px; }
-
-        transition: border 250ms;
-
-        &:focus {
-          border: 2px solid rgba(0, 0, 0, 0.8);
-        }
-
+      span {
+        flex: 1;
         text-align: center;
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--dark);
-        
-        &::placeholder {
-          color: rgba(0, 0, 0, 0.35);
-          opacity: 1;
+        padding: 16px;
+        cursor: pointer;
+
+        &:first-child {
+          border-right: 1px solid rgba(0, 0, 0, 0.15);
         }
 
-        &[type=button] {
-          background-color: var(--dark);
-          color: var(--light);
-          font-weight: 800;
-          cursor: pointer;
+        &.active, &:hover {
+          background-color: #f8f8f8;
+        }
+      }
+    }
 
-          &:hover {
-            background-color: var(--darker);
-          }
+    input {
+      width: calc(100% - 32px);
+      height: 48px;
+      border: 2px solid rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+      margin: 0 16px 8px 16px;
+      outline: none;
+      &:last-child { margin: 0 16px -2px 16px; }
+
+      transition: border 250ms;
+
+      &:focus {
+        border: 2px solid rgba(0, 0, 0, 0.8);
+      }
+
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--dark);
+      
+      &::placeholder {
+        color: rgba(0, 0, 0, 0.35);
+        opacity: 1;
+      }
+
+      &[type=button] {
+        background-color: var(--dark);
+        color: var(--light);
+        font-weight: 800;
+        cursor: pointer;
+
+        &:hover {
+          background-color: var(--darker);
         }
       }
     }
   }
+}
 
-  aside {
-    position: fixed;
-    background-color: rgba(0, 0, 0, 0.1);
-
-    &.rectangle {
-      top: -15vmin;
-      left: -15vmin;
-      transform: rotate(45deg);
-      min-width: 75vmin;
-      min-height: 75vmin;
-    }
-
-    &.circle {
-      border-radius: 50%;
-      bottom: -15vmin;
-      right: -15vmin;
-      transform: rotate(45deg);
-      min-width: 75vmin;
-      min-height: 75vmin;
-    }
-  }
+img.loader {
+  width: 64px;
+  animation: loading 1s linear infinite;
+  margin: 0;
 }
 
 @keyframes loading {

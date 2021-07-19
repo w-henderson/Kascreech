@@ -1,7 +1,7 @@
 # Host
 Initialise game:
 ```json
-{"status": "success", "gameId": "123456", "gameName": "Game Name", "questionCount": 2}
+{"success": true, "gameId": "123456", "gameName": "Game Name", "questionCount": 2}
 ```
 Player joins:
 ```json
@@ -19,7 +19,7 @@ Leaderboard:
 # Player
 Accept into lobby:
 ```json
-{"status": "success"}
+{"success": true}
 ```
 Question start:
 ```json

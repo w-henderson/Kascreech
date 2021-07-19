@@ -73,7 +73,7 @@ class Player extends React.Component<PlayerProps, PlayerState> {
   wsHandler(e: MessageEvent<any>) {
     let data = JSON.parse(e.data);
     if (this.state.phase === PlayerPhase.AwaitingLobby) {
-      if (data.status === "success") {
+      if (data.success === true) {
         this.setState({ phase: PlayerPhase.Lobby });
       } else {
         this.props.onFailure(data.message);
