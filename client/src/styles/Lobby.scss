@@ -114,6 +114,7 @@ div.Lobby {
       border-radius: 4px;
       color: var(--light);
       background-color: var(--accent-darkest);
+      animation: bounce-in 600ms ease;
     }
   }
 
@@ -137,4 +138,10 @@ div.Lobby {
       background-color: var(--accent-darkest);
     }
   }
+}
+
+@keyframes bounce-in {
+  0%   { transform: scale(0);   }
+  70%  { transform: scale(1.2) rotate(5deg); }
+  100% { transform: scale(1);   }
 }
