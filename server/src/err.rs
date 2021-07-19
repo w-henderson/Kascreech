@@ -6,10 +6,21 @@ pub struct FailResponse {
     message: KascreechError,
 }
 
+impl FailResponse {
+    pub const fn new(message: KascreechError) -> Self {
+        Self {
+            success: false,
+            message,
+        }
+    }
+}
+
 #[derive(Serialize, Debug)]
 pub enum KascreechError {
     IoErr(String),
     UreqError(String),
+    GameNotFound,
+    NameAlreadyExists,
 }
 
 impl From<std::io::Error> for KascreechError {
