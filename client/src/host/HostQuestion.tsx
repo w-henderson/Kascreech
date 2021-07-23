@@ -1,10 +1,13 @@
 import React from 'react';
 import '../styles/HostQuestion.scss';
 
+import { Timer } from "@material-ui/icons";
+
 interface QuestionProps {
   question: Question,
   showCorrect: boolean,
   questionNumber: number,
+  questionCount: number,
   showAnswersCallback: () => void,
   showLeaderboardCallback: () => void
 }
@@ -37,23 +40,39 @@ class HostQuestion extends React.Component<QuestionProps, QuestionState> {
 
   skip() {
     if (this.updateInterval) clearInterval(this.updateInterval);
+    this.setState({ timeRemaining: 0 });
     this.props.showAnswersCallback();
   }
 
   render() {
     return (
-      <div>
+      <div className="HostQuestion">
         <div>
-          <h1>({this.props.questionNumber}) {this.props.question.question} - Time Remaining {this.state.timeRemaining} sec</h1>
+          <h1>{this.props.question.question}</h1>
+          <span className="topLeft">{this.props.questionNumber}/{this.props.questionCount}</span>
+          <span className="topRight"><Timer />{this.state.timeRemaining}</span>
+
+          {this.props.showCorrect &&
+            <button
+              className="bottomRight"
+              onClick={this.props.showLeaderboardCallback}>Continue</button>}
+          {(this.state.timeRemaining > 0 && !this.props.showCorrect) &&
+            <button className="bottomRight" onClick={this.skip}>Skip</button>}
+        </div>
+
+        <div>
           {this.props.question.answers.map((answer, index) =>
-            <div key={index}>
+            <div key={index} className={this.props.showCorrect && !answer.correct ? "incorrect" : ""}>
               {answer.text}
-              {this.props.showCorrect && (answer.correct ? "(Correct)" : "(Incorrect)")}
             </div>
           )}
         </div>
+      </div>
+    )
+  }
+}
 
-        {(this.state.timeRemaining > 0 && !this.props.showCorrect) &&
+/*{(this.state.timeRemaining > 0 && !this.props.showCorrect) &&
           <div>
             <h2>Skip Countdown</h2>
             <button onClick={this.skip}>Skip Countdown</button>
@@ -65,10 +84,6 @@ class HostQuestion extends React.Component<QuestionProps, QuestionState> {
             <h2>Show Leaderboard</h2>
             <button onClick={this.props.showLeaderboardCallback}>Show Leaderboard</button>
           </div>
-        }
-      </div>
-    )
-  }
-}
+        }*/
 
 export default HostQuestion;

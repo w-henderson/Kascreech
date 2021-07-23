@@ -24,7 +24,7 @@ interface HostProps {
 interface HostState {
   gameId: string | undefined,
   gameName: string | undefined,
-  questionCount: number | undefined,
+  questionCount: number,
   questionNumber: number,
   lobbyPlayers: string[],
   phase: HostPhase,
@@ -41,7 +41,7 @@ class Host extends React.Component<HostProps, HostState> {
       gameId: undefined,
       gameName: undefined,
       questionNumber: 0,
-      questionCount: undefined,
+      questionCount: 0,
       lobbyPlayers: [],
       phase: HostPhase.AwaitingLobby,
       currentQuestion: undefined,
@@ -150,6 +150,7 @@ class Host extends React.Component<HostProps, HostState> {
         <HostQuestion
           question={this.state.currentQuestion}
           questionNumber={this.state.questionNumber}
+          questionCount={this.state.questionCount}
           showCorrect={this.state.phase === HostPhase.Answer}
           showAnswersCallback={this.endQuestion}
           showLeaderboardCallback={this.showLeaderboard} />

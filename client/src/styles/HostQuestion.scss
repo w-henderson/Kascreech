@@ -1,0 +1,104 @@
+div.HostQuestion {
+    width: calc(100% - 64px);
+    height: calc(100% - 64px);
+    position: relative;
+    border-radius: 16px;
+
+    animation: appear 500ms ease-out;
+
+    > div:first-child {
+        position: relative;
+        width: 100%;
+        height: 40%;
+        padding: 32px;
+        border-radius: 16px;
+        color: var(--light);
+        background-color: var(--darker);
+        margin-bottom: 32px;
+
+        display: flex;
+        flex-direction: row;
+        place-items: center;
+
+        span, button {
+            position: absolute;
+            top: 12px;
+            height: 48px;
+            color: var(--light);
+            background-color: var(--dark);
+            font-size: 28px;
+            font-weight: 600;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: auto;
+            display: flex;
+            place-items: center;
+
+            &.topLeft { left: 12px; }
+            &.topRight { right: 12px; }
+            &.bottomRight { top: unset; bottom: 12px; right: 12px; }
+
+            svg {
+                width: 28px;
+                height: 28px;
+                margin-right: 8px;
+            }
+        }
+
+        button {
+            outline: none;
+            cursor: pointer;
+            border: none;
+            border-bottom: 4px solid #444;
+    
+            &:hover {
+              border-bottom: none;
+            }
+          }
+
+        h1 {
+            flex: 1;
+            text-align: center;
+            height: unset;
+            font-size: 40px;
+        }
+    }
+
+    > div:last-child {
+        width: 100%;
+        height: calc(60% - 32px);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 32px;
+
+        div {
+            display: flex;
+            place-items: center;
+            place-content: center;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--light);
+            text-shadow: 0 0 16px rgba(0, 0, 0, 0.2);
+            flex: 1;
+            min-width: calc(50% - 16px);
+            border-radius: 16px;
+
+            transition: background-color 500ms, color 500ms;
+
+            &:nth-child(1) { background-color: var(--red); }
+            &:nth-child(2) { background-color: var(--blue); }
+            &:nth-child(3) { background-color: var(--yellow); }
+            &:nth-child(4) { background-color: var(--green); }
+
+            &.incorrect {
+                color: #444;
+                background-color: var(--dark);
+            }
+        }
+    }
+}
+
+@keyframes appear {
+    0%   { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
