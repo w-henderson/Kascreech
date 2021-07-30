@@ -6,9 +6,11 @@ edition = "2018"
 [dependencies]
 tokio = { version = "^1.8", features = ["full"] }
 tokio-tungstenite = "*"
+tokio-stream = "*"
+
 ureq = { version = "^2.1", features = ["json"] }
 
-serde = { version = "^1", features = ["derive"] }
+serde = { version = "^1", features = ["derive", "rc"] }
 serde_json = "*"
 
 dashmap = "^4.0"

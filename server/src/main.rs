@@ -9,6 +9,7 @@ mod host;
 mod join;
 
 use command::Command;
+use err::{send_error, KascreechError};
 use game::Game;
 
 use log::{info, warn};
@@ -36,6 +37,7 @@ async fn main() -> Result<(), std::io::Error> {
     let log_config = LogConfigBuilder::builder()
         .path("log.log")
         .output_file()
+        .level("info")
         .build();
 
     simple_log::new(log_config).unwrap();
@@ -67,7 +69,7 @@ async fn accept_connection(stream: TcpStream) {
             if let Ok(command) = serde_json::from_str::<Command>(s) {
                 match command.command {
                     "host" => host::host_command(s, &mut write, &mut read).await,
-                    "join" => join::join_command(s, &mut write).await,
+                    "join" => join::join_command(s, &mut write, &mut read).await,
                     _ => {
                         warn!("Unknown command type {}", command.command);
                     }

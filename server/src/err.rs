@@ -1,13 +1,32 @@
 use serde::Serialize;
 
-#[derive(Serialize)]
-pub struct FailResponse {
-    success: bool,
-    message: KascreechError,
+use tokio_tungstenite::tungstenite::Message;
+
+use log::error;
+
+use futures::SinkExt;
+
+pub async fn send_error<W: SinkExt<Message> + Unpin + Send>(
+    w: &mut W,
+    error: &KascreechError,
+) -> Result<(), W::Error> {
+    error!("{:?}", error);
+
+    let message = Message::Text(serde_json::to_string(&FailResponse::new(error)).unwrap());
+
+    w.send(message).await?;
+
+    Ok(())
 }
 
-impl FailResponse {
-    pub const fn new(message: KascreechError) -> Self {
+#[derive(Serialize)]
+pub struct FailResponse<'a> {
+    success: bool,
+    message: &'a KascreechError,
+}
+
+impl<'a> FailResponse<'a> {
+    pub const fn new(message: &'a KascreechError) -> Self {
         Self {
             success: false,
             message,
