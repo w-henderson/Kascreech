@@ -1,4 +1,4 @@
-use std::iter::repeat_with;
+use std::{convert::TryInto, iter::repeat_with, sync::Arc};
 
 use serde::{Deserialize, Serialize};
 
@@ -41,7 +41,7 @@ pub async fn host_command(host_request: &str, write: &mut Write, read: &mut Read
             GAMES.insert(game_id.clone(), game);
         }
         Err(e) => {
-            crate::send_error(write, &e).await.unwrap();
+            crate::send_error!(write, e).unwrap();
 
             return;
         }
@@ -97,7 +97,7 @@ pub async fn host_command(host_request: &str, write: &mut Write, read: &mut Read
                         .player_sender
                         .send(player_send_question.clone())
                         .await
-                        .unwrap()
+                        .unwrap();
                 }
 
                 let host_send_question = Message::Text(
@@ -111,6 +111,10 @@ pub async fn host_command(host_request: &str, write: &mut Write, read: &mut Read
 
                 write.send(host_send_question).await.unwrap();
 
+                game.receiving = true;
+
+                let mut points = Points::new(game.players.len().try_into().unwrap());
+
                 // Waiting for players to send answers, or the host
                 // to request the leaderboard
                 loop {
@@ -122,8 +126,34 @@ pub async fn host_command(host_request: &str, write: &mut Write, read: &mut Read
                             if let Some(player) = player {
                                 // The player has not played this round yet
                                 if !player.played {
-                                    if next_question.choices.get(player_guess.index).is_some() {
-                                        println!("Player {} has answered with index {}", player.user_name, player_guess.index)
+                                    if let Some(choice) = next_question.choices.get(player_guess.index) {
+                                        let (points_this_round, streak) = if choice.correct {
+                                            let add_points = points.next_points();
+
+                                            let points_this_round = <u16 as Into<usize>>::into(add_points);
+
+                                            player.score += points_this_round;
+                                            player.streak += 1;
+
+                                            (points_this_round, player.streak)
+                                        } else {
+                                            player.streak = 0;
+                                            (0, 0)
+                                        };
+
+                                        let message = Message::Text(
+                                            serde_json::to_string(&PlayerRoundEnd {
+                                                event: "questionEnd",
+                                                correct: choice.correct,
+                                                points_this_round,
+                                                points_total: player.score,
+                                                streak,
+                                                position: 0,
+                                                behind: None,
+                                            }).unwrap()
+                                        );
+
+                                        player.player_sender.send(message).await.unwrap();
                                     }
                                 }
                                 player.played = true;
@@ -146,6 +176,8 @@ pub async fn host_command(host_request: &str, write: &mut Write, read: &mut Read
                         }
                     }
                 }
+
+                game.receiving = false;
 
                 // Actually send the leaderboard
                 game.players.sort_by(|a, b| a.score.cmp(&b.score));
@@ -193,6 +225,42 @@ pub async fn host_command(host_request: &str, write: &mut Write, read: &mut Read
     }
 
     println!("Finished a connection");
+
+    GAMES.remove(&game_id).unwrap();
+}
+
+struct Points {
+    placement: i32,
+    num_of_players: i32,
+}
+
+impl Points {
+    const fn new(num_of_players: i32) -> Self {
+        Self {
+            placement: 0,
+            num_of_players,
+        }
+    }
+    fn next_points(&mut self) -> u16 {
+        let power = -(self.placement - 1) / (self.num_of_players - 1);
+
+        self.placement += 1;
+
+        (1000. * 1.5_f64.powi(power)) as u16
+    }
+}
+
+#[derive(Serialize)]
+struct PlayerRoundEnd {
+    event: &'static str,
+    correct: bool,
+    #[serde(rename = "pointsThisRound")]
+    points_this_round: usize,
+    #[serde(rename = "pointsTotal")]
+    points_total: usize,
+    streak: usize,
+    position: usize,
+    behind: Option<Arc<String>>,
 }
 
 #[derive(Deserialize)]
@@ -216,7 +284,7 @@ impl Game {
         SuccessResponse {
             success: true,
             game_id,
-            game_name: &self.title,
+            game_name: &self.game_code,
             question_count: self.questions.len(),
         }
     }

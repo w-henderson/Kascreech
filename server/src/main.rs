@@ -9,7 +9,7 @@ mod host;
 mod join;
 
 use command::Command;
-use err::{send_error, KascreechError};
+use err::KascreechError;
 use game::Game;
 
 use log::{info, warn};

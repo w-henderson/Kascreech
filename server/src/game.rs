@@ -9,11 +9,13 @@ use crate::{err::KascreechError, join::PlayerGuess, player::Player};
 use ureq::{get, Error};
 
 pub struct Game {
-    pub title: String,
+    pub game_code: String,
     pub questions: IntoIter<KahootQuestion>,
     pub players: Vec<Player>,
     pub player_sender: Sender<Arc<String>>,
     pub question_sender: Sender<PlayerGuess>,
+    /// Whether the game is currently receiving more questions
+    pub receiving: bool,
 }
 
 impl Game {
@@ -27,11 +29,12 @@ impl Game {
                 let kahoot_game: KahootGame = res.into_json()?;
 
                 Ok(Self {
-                    title: kahoot_game.title,
+                    game_code: kahoot_game.title,
                     questions: kahoot_game.questions.into_iter(),
                     players: Vec::new(),
                     player_sender,
                     question_sender,
+                    receiving: false,
                 })
             }
             Err(err) => match err {

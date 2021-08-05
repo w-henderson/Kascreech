@@ -24,9 +24,7 @@ pub async fn join_command(join_request: &str, write: &mut Write, read: &mut Read
             let already_exists = game.players.iter().any(|p| p.user_name == player_name);
 
             if already_exists {
-                crate::send_error(write, &KascreechError::NameAlreadyExists)
-                    .await
-                    .unwrap();
+                crate::send_error!(write, KascreechError::NameAlreadyExists).unwrap();
 
                 return;
             }
@@ -49,9 +47,7 @@ pub async fn join_command(join_request: &str, write: &mut Write, read: &mut Read
             receiver
         }
         None => {
-            crate::send_error(write, &KascreechError::GameNotFound)
-                .await
-                .unwrap();
+            crate::send_error!(write, KascreechError::GameNotFound).unwrap();
 
             return;
         }
@@ -89,7 +85,11 @@ pub async fn join_command(join_request: &str, write: &mut Write, read: &mut Read
 
                     let game = GAMES.get(game_id).unwrap();
 
-                    game.question_sender.send(player_guess).await.unwrap();
+                    if game.receiving {
+                        game.question_sender.send(player_guess).await.unwrap();
+                    } else {
+                        crate::send_error!(write, KascreechError::NotReceivingAnswers).unwrap();
+                    }
                 }
             },
         }

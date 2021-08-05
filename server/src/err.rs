@@ -1,22 +1,15 @@
 use serde::Serialize;
 
-use tokio_tungstenite::tungstenite::Message;
+#[macro_export]
+macro_rules! send_error {
+    ($w: ident, $error: expr) => {{
+        log::error!("{:?}", $error);
 
-use log::error;
-
-use futures::SinkExt;
-
-pub async fn send_error<W: SinkExt<Message> + Unpin + Send>(
-    w: &mut W,
-    error: &KascreechError,
-) -> Result<(), W::Error> {
-    error!("{:?}", error);
-
-    let message = Message::Text(serde_json::to_string(&FailResponse::new(error)).unwrap());
-
-    w.send(message).await?;
-
-    Ok(())
+        $w.send(Message::Text(
+            serde_json::to_string(&crate::err::FailResponse::new(&$error)).unwrap(),
+        ))
+        .await
+    }};
 }
 
 #[derive(Serialize)]
@@ -40,6 +33,7 @@ pub enum KascreechError {
     UreqError(String),
     GameNotFound,
     NameAlreadyExists,
+    NotReceivingAnswers,
 }
 
 impl From<std::io::Error> for KascreechError {
