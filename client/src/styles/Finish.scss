@@ -9,4 +9,10 @@ div.Finish {
     margin: 0 0 16px 0;
     font-size: 128px;
   }
+
+  div {
+    position: absolute !important;
+    top: 50%;
+    left: 50%;
+  }
 }
