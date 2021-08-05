@@ -10,22 +10,24 @@ interface LeaderboardProps {
 class Leaderboard extends React.Component<LeaderboardProps> {
   render() {
     return (
-      <div>
-        <h1>Leaderboard</h1>
-        {this.props.leaderboard.map((value, index) =>
-          <div key={index}>
-            {index + 1}: {value.userName} ({value.points}, streak of {value.streak})
-          </div>
-        )}
+      <div className="Leaderboard">
+        <div className="header">
+          <h1>{this.props.isLastQuestion ? "That's all folks!" : "Scoreboard"}</h1>
+        </div>
 
         {!this.props.isLastQuestion &&
-          <div>
-            <h2>Next Question</h2>
-            <button onClick={this.props.nextQuestionCallback}>Next Question</button>
-          </div>
+          <button onClick={this.props.nextQuestionCallback}>Next</button>
         }
 
-        {this.props.isLastQuestion && <h2>That's all folks!</h2>}
+        <div className="scores">
+          {this.props.leaderboard.slice(0, 5).map((value, index) =>
+            <div key={index}>
+              <span>{value.userName}</span>
+              {value.streak >= 3 && <span className="streak">🔥 {value.streak}</span>}
+              <span>{value.points}</span>
+            </div>
+          )}
+        </div>
       </div>
     )
   }

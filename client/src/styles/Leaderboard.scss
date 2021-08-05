@@ -1,0 +1,80 @@
+div.Leaderboard {
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  div.header {
+    width: 100%;
+    height: 96px;
+    display: flex;
+    place-items: center;
+    place-content: center;
+    background-color: var(--lighter);
+    
+    h1 {
+      font-size: 48px;
+      color: var(--dark);
+    }
+  }
+
+  button {
+    position: absolute;
+    top: 112px;
+    right: 16px;
+    height: 48px;
+    width: 96px;
+    font-weight: 600;
+    color: var(--dark);
+    background-color: var(--light);
+    outline: none;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    border-bottom: 4px solid #ddd;
+
+    &:hover {
+      border-bottom: none;
+    }
+  }
+
+  div.scores {
+    width: 100%;
+    height: calc(100% - 96px);
+    display: flex;
+    flex-direction: column;
+    place-items: center;
+    place-content: center;
+
+    div {
+      width: 80%;
+      height: 64px;
+      margin-bottom: 16px;
+      font-weight: 700;
+      padding: 16px;
+      font-size: 26px;
+      color: var(--light);
+      border-radius: 4px;
+
+      display: flex;
+
+      span:first-child {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        flex: 1;
+        margin-right: 32px;
+      }
+
+      span.streak {
+        margin-right: 16px;
+        font-size: 22px;
+        color: rgb(170, 45, 0);
+      }
+    }
+
+    div:first-child {
+      color: var(--darker);
+      background-color: var(--light);
+    }
+  }
+}
