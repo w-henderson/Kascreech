@@ -4,7 +4,10 @@ import '../styles/Player.scss';
 
 import LobbyLoading from '../LobbyLoading';
 import PlayerQuestion from './PlayerQuestion';
+import PlayerLobby from './PlayerLobby';
 import Result from "./Result";
+import GuessMade from './GuessMade';
+import Finish from './Finish';
 
 enum PlayerPhase {
   AwaitingLobby,
@@ -112,10 +115,7 @@ class Player extends React.Component<PlayerProps, PlayerState> {
       )
     } else if (this.state.phase === PlayerPhase.Lobby) {
       return (
-        <div>
-          <h2>You're in the lobby!</h2>
-          You'll be playing as soon as the host starts the game.
-        </div>
+        <PlayerLobby />
       )
     } else if (this.state.phase === PlayerPhase.Question) {
       return (
@@ -125,7 +125,7 @@ class Player extends React.Component<PlayerProps, PlayerState> {
       )
     } else if (this.state.phase === PlayerPhase.GuessedQuestion) {
       return (
-        <div>Guess made!</div>
+        <GuessMade />
       )
     } else if (this.state.phase === PlayerPhase.Result && this.state.result) {
       return (
@@ -135,10 +135,7 @@ class Player extends React.Component<PlayerProps, PlayerState> {
       )
     } else if (this.state.phase === PlayerPhase.End) {
       return (
-        <div>
-          <h2>You came in at number {this.state.position}!</h2>
-          Nice work / better luck next time / touch grass / you need to revise more etc
-        </div>
+        <Finish position={this.state.position} />
       )
     }
   }

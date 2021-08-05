@@ -9,10 +9,9 @@ interface QuestionProps {
 class PlayerQuestion extends React.Component<QuestionProps> {
   render() {
     return (
-      <div>
-        <h2>What's the answer?</h2>
+      <div className="PlayerQuestion">
         {[...Array(this.props.answerCount)].map((_, index) =>
-          <div key={index} onClick={() => this.props.guessCallback(index)}>Answer {index + 1}</div>
+          <div key={index} onClick={() => this.props.guessCallback(index)}></div>
         )}
       </div>
     )

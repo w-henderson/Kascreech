@@ -1,0 +1,11 @@
+div.GuessMade {
+  color: var(--light);
+  text-align: center;
+  text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  max-width: 90%;
+
+  h1 {
+    margin-top: 0;
+    font-size: 40px;
+  }
+}
