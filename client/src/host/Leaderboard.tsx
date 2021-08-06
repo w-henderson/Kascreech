@@ -20,7 +20,7 @@ class Leaderboard extends React.Component<LeaderboardProps> {
         }
 
         <div className="scores">
-          {this.props.leaderboard.slice(0, 5).map((value, index) =>
+          {this.props.leaderboard.slice(-5).reverse().map((value, index) =>
             <div key={index}>
               <span>{value.userName}</span>
               {value.streak >= 3 && <span className="streak">🔥 {value.streak}</span>}
