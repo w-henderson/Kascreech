@@ -39,23 +39,27 @@ impl Player {
     ) -> Result<(), SendError<Message>> {
         self.played = false;
 
-        let player_round_end = if let Some(mut player_round_end) = self.player_round_end.take() {
-            player_round_end.position = position;
-            player_round_end.behind = behind;
+        let mut player_round_end = self.player_round_end.take().map_or_else(
+            || {
+                self.streak = 0;
+                PlayerRoundEnd {
+                    event: "questionEnd",
+                    correct: false,
+                    points_this_round: 0,
+                    points_total: self.points,
+                    streak: self.streak,
+                    position,
+                    behind: None,
+                }
+            },
+            |mut player_round_end| {
+                player_round_end.position = position;
 
-            player_round_end
-        } else {
-            self.streak = 0;
-            PlayerRoundEnd {
-                event: "questionEnd",
-                correct: false,
-                points_this_round: 0,
-                points_total: self.points,
-                streak: self.streak,
-                position,
-                behind,
-            }
-        };
+                player_round_end
+            },
+        );
+
+        player_round_end.behind = behind;
 
         self.player_sender
             .send(Message::Text(
