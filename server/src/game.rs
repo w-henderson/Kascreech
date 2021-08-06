@@ -13,34 +13,45 @@ pub struct Game {
     pub questions: IntoIter<KahootQuestion>,
     pub players: Vec<Player>,
     pub player_sender: Sender<Arc<String>>,
-    pub question_sender: Sender<PlayerGuess>,
-    /// Whether the game is currently receiving more questions
-    pub receiving: bool,
 }
 
 impl Game {
-    pub fn new(
-        url: &str,
-        player_sender: Sender<Arc<String>>,
-        question_sender: Sender<PlayerGuess>,
-    ) -> Result<Self, KascreechError> {
+    pub fn new(url: &str, player_sender: Sender<Arc<String>>) -> Result<Self, KascreechError> {
         match get(url).call() {
             Ok(res) => {
-                let kahoot_game: KahootGame = res.into_json()?;
+                let mut kahoot_game: KahootGame = res.into_json()?;
+
+                // The time should be represented as s rather
+                // than ms
+                for question in &mut kahoot_game.questions {
+                    question.time /= 1000;
+                }
 
                 Ok(Self {
                     game_code: kahoot_game.title,
                     questions: kahoot_game.questions.into_iter(),
                     players: Vec::new(),
                     player_sender,
-                    question_sender,
-                    receiving: false,
                 })
             }
             Err(err) => match err {
                 Error::Status(e, _) if e == 404 => Err(KascreechError::GameNotFound),
                 _ => Err(err.into()),
             },
+        }
+    }
+}
+
+pub struct Senders {
+    pub guess_sender: Sender<PlayerGuess>,
+    pub receiving: bool,
+}
+
+impl Senders {
+    pub fn new(guess_sender: Sender<PlayerGuess>) -> Self {
+        Self {
+            guess_sender,
+            receiving: false,
         }
     }
 }

@@ -9,10 +9,9 @@ mod host;
 mod join;
 
 use command::Command;
-use err::KascreechError;
-use game::Game;
+use err::{KascreechError, KascreechResult};
+use game::{Game, Senders};
 
-use log::{info, warn};
 use simple_log::LogConfigBuilder;
 
 use tokio::net::{TcpListener, TcpStream};
@@ -22,7 +21,7 @@ use dashmap::DashMap;
 
 use futures::{
     stream::{SplitSink, SplitStream},
-    StreamExt,
+    SinkExt, StreamExt,
 };
 
 use once_cell::sync::Lazy;
@@ -31,6 +30,7 @@ type Write = SplitSink<WebSocketStream<TcpStream>, Message>;
 type Read = SplitStream<WebSocketStream<TcpStream>>;
 
 static GAMES: Lazy<DashMap<String, Game>> = Lazy::new(DashMap::default);
+static HOST_SENDERS: Lazy<DashMap<String, Senders>> = Lazy::new(DashMap::default);
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
@@ -50,31 +50,41 @@ async fn main() -> Result<(), std::io::Error> {
     let listener = try_socket.expect("Failed to bind");
 
     while let Ok((stream, _)) = listener.accept().await {
-        info!("New connection");
         tokio::spawn(accept_connection(stream));
     }
 
     Ok(())
 }
 
-async fn accept_connection(stream: TcpStream) {
-    let ws_stream = tokio_tungstenite::accept_async(stream)
-        .await
-        .expect("Error during the websocket handshake occurred");
+async fn accept_connection(stream: TcpStream) -> KascreechResult<()> {
+    let ws_stream = tokio_tungstenite::accept_async(stream).await?;
 
     let (mut write, mut read) = ws_stream.split();
 
-    if let Some(Ok(message)) = read.next().await {
-        if let Ok(s) = message.to_text() {
-            if let Ok(command) = serde_json::from_str::<Command>(s) {
-                match command.command {
-                    "host" => host::host_command(s, &mut write, &mut read).await,
-                    "join" => join::join_command(s, &mut write, &mut read).await,
-                    _ => {
-                        warn!("Unknown command type {}", command.command);
-                    }
-                }
-            }
-        }
+    let message = read.next().await.ok_or(KascreechError::FailedRead)??;
+
+    let s = message.to_text()?;
+
+    let command = serde_json::from_str::<Command>(s)?;
+
+    let err = match command.command {
+        "host" => host::host_command(s, &mut write, &mut read).await,
+        "join" => join::join_command(s, &mut write, &mut read).await,
+        _ => Err(KascreechError::UnrecognisedCommand(
+            command.command.to_string(),
+        )),
+    };
+
+    if let Err(e) = err {
+        log::error!("{:?}", e);
+
+        write
+            .send(Message::Text(
+                serde_json::to_string(&crate::err::FailResponse::new(&e)).unwrap(),
+            ))
+            .await
+            .unwrap();
     }
+
+    Ok(())
 }
