@@ -299,7 +299,7 @@ struct SuccessResponse<'a> {
 }
 
 impl Game {
-    fn make_response<'r>(&'r self, game_id: &'r str) -> SuccessResponse<'r> {
+    fn make_response<'a>(&'a self, game_id: &'a str) -> SuccessResponse<'a> {
         SuccessResponse {
             success: true,
             game_id,
