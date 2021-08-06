@@ -48,7 +48,7 @@ pub struct Senders {
 }
 
 impl Senders {
-    pub fn new(guess_sender: Sender<PlayerGuess>) -> Self {
+    pub const fn new(guess_sender: Sender<PlayerGuess>) -> Self {
         Self {
             guess_sender,
             receiving: false,

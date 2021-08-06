@@ -65,9 +65,8 @@ pub async fn join_command(
                 if let Some(message) = recv {
                     if let Message::Close(_) = message {
                         break
-                    } else {
-                        write.send(message).await?;
                     }
+                    write.send(message).await?;
                 }
             },
             // An answer's been read from the client
