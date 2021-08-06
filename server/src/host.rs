@@ -26,6 +26,10 @@ pub async fn host_command(
 
     let to_return = host_command_internal(game_id.clone(), host_request, write, read).await;
 
+    for p in GAMES.get_mut(&game_id).unwrap().players.iter_mut() {
+        p.player_sender.send(Message::Close(None)).await.unwrap()
+    }
+
     GAMES.remove(&game_id);
     HOST_SENDERS.remove(&game_id);
 
