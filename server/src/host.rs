@@ -22,12 +22,12 @@ pub async fn host_command(
     write: &mut Write,
     read: &mut Read,
 ) -> KascreechResult<()> {
-    let game_id = generate_game_id().await;
+    let game_id = generate_game_id();
 
     let to_return = host_command_internal(game_id.clone(), host_request, write, read).await;
 
-    for p in GAMES.get_mut(&game_id).unwrap().players.iter_mut() {
-        p.player_sender.send(Message::Close(None)).await.unwrap()
+    for p in &GAMES.get(&game_id).unwrap().players {
+        p.player_sender.send(Message::Close(None)).await.unwrap();
     }
 
     GAMES.remove(&game_id);
@@ -36,7 +36,7 @@ pub async fn host_command(
     to_return
 }
 
-async fn generate_game_id() -> String {
+fn generate_game_id() -> String {
     repeat_with(|| fastrand::digit(10)).take(6).collect()
 }
 
