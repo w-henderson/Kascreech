@@ -9,7 +9,7 @@ mod host;
 mod join;
 
 use command::Command;
-use err::{KascreechError, KascreechResult};
+use err::{FailResponse, KascreechError, KascreechResult};
 use game::{Game, Senders};
 
 use simple_log::LogConfigBuilder;
@@ -61,7 +61,10 @@ async fn accept_connection(stream: TcpStream) -> KascreechResult<()> {
 
     let (mut write, mut read) = ws_stream.split();
 
-    let message = read.next().await.ok_or(KascreechError::FailedRead)??;
+    let message = read
+        .next()
+        .await
+        .ok_or(FailResponse::new(KascreechError::FailedRead, None))??;
 
     let s = message.to_text()?;
 
@@ -70,18 +73,17 @@ async fn accept_connection(stream: TcpStream) -> KascreechResult<()> {
     let err = match command.command {
         "host" => host::host_command(s, &mut write, &mut read).await,
         "join" => join::join_command(s, &mut write, &mut read).await,
-        _ => Err(KascreechError::UnrecognisedCommand(
-            command.command.to_string(),
+        _ => Err(FailResponse::new(
+            KascreechError::UnrecognisedCommand,
+            Some(command.command.to_string()),
         )),
     };
 
     if let Err(e) = err {
-        log::error!("{:?}", e);
+        log::error!("{}", e);
 
         write
-            .send(Message::Text(
-                serde_json::to_string(&crate::err::FailResponse::new(&e)).unwrap(),
-            ))
+            .send(Message::Text(serde_json::to_string(&e).unwrap()))
             .await
             .unwrap();
     }

@@ -5,7 +5,10 @@ use serde::{Deserialize, Serialize};
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_tungstenite::tungstenite::Message;
 
-use crate::{player::Player, KascreechError, KascreechResult, Read, Write, GAMES, HOST_SENDERS};
+use crate::{
+    err::FailResponse, player::Player, KascreechError, KascreechResult, Read, Write, GAMES,
+    HOST_SENDERS,
+};
 
 use log::warn;
 
@@ -32,7 +35,7 @@ pub async fn join_command(
         let already_exists = game.players.iter().any(|p| p.user_name == player_name);
 
         if already_exists {
-            let e = KascreechError::NameAlreadyExists;
+            let e = FailResponse::new(KascreechError::NameAlreadyExists, None);
 
             crate::send_error!(write, e);
         }
@@ -50,7 +53,7 @@ pub async fn join_command(
 
         ReceiverStream::new(receiver).fuse()
     } else {
-        let e = KascreechError::GameNotFound;
+        let e = FailResponse::new(KascreechError::GameNotFound, None);
 
         crate::send_error!(write, e);
     };

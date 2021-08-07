@@ -4,7 +4,11 @@ use serde::{Deserialize, Serialize};
 
 use tokio::sync::mpsc::Sender;
 
-use crate::{err::KascreechError, join::PlayerGuess, player::Player};
+use crate::{
+    err::{FailResponse, KascreechError, KascreechResult},
+    join::PlayerGuess,
+    player::Player,
+};
 
 use ureq::{get, Error};
 
@@ -16,7 +20,7 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(url: &str, player_sender: Sender<Arc<String>>) -> Result<Self, KascreechError> {
+    pub fn new(url: &str, player_sender: Sender<Arc<String>>) -> KascreechResult<Self> {
         match get(url).call() {
             Ok(res) => {
                 let mut kahoot_game: KahootGame = res.into_json()?;
@@ -35,7 +39,9 @@ impl Game {
                 })
             }
             Err(err) => match err {
-                Error::Status(e, _) if e == 404 => Err(KascreechError::GameNotFound),
+                Error::Status(e, _) if e == 404 => {
+                    Err(FailResponse::new(KascreechError::GameNotFound, None))
+                }
                 _ => Err(err.into()),
             },
         }

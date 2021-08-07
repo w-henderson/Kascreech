@@ -7,7 +7,7 @@ use tokio_tungstenite::tungstenite::Message;
 
 use crate::{
     command::Command,
-    err::{KascreechError, KascreechResult},
+    err::{FailResponse, KascreechError, KascreechResult},
     game::{Game, KahootAnswer},
     player::Player,
     Read, Senders, Write, GAMES, HOST_SENDERS,
@@ -196,7 +196,7 @@ async fn host_command_internal(
 
             HOST_SENDERS
                 .get_mut(&game_id)
-                .ok_or(KascreechError::GameNotFound)?
+                .ok_or(FailResponse::new(KascreechError::GameNotFound, None))?
                 .receiving = false;
 
             // Actually send the leaderboard
