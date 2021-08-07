@@ -33,7 +33,7 @@ impl<'a> FailResponse<'a> {
         Self {
             success: false,
             error_type: message,
-            error_message: format!("{:?}", message),
+            error_message: format!("{}", message),
         }
     }
 }
