@@ -237,7 +237,7 @@ async fn host_command_internal(
     }
 
     // No questions remain, the game ends
-    game.players.sort_by(|a, b| a.points.cmp(&b.points));
+    game.players.sort_by(|b, a| a.points.cmp(&b.points));
     for (i, player) in game.players.iter().enumerate() {
         let game_over = Message::Text(serde_json::to_string(&GameOver {
             event: "end",
