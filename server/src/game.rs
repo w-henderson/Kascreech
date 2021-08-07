@@ -51,6 +51,7 @@ impl Game {
 pub struct Senders {
     pub guess_sender: Sender<PlayerGuess>,
     pub receiving: bool,
+    pub in_progress: bool,
 }
 
 impl Senders {
@@ -58,6 +59,7 @@ impl Senders {
         Self {
             guess_sender,
             receiving: false,
+            in_progress: false,
         }
     }
 }

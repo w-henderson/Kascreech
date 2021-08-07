@@ -30,6 +30,16 @@ pub async fn join_command(
 
     let player_name = Arc::new(player_name);
 
+    // Checks if the game has already started
+    if let Some(sender) = HOST_SENDERS.get(game_id) {
+        if sender.in_progress {
+            // Treats "game in progress" as "game not found" for the sake of the client
+            let e = FailResponse::new(KascreechError::GameNotFound, None);
+
+            crate::send_error!(write, e);
+        }
+    }
+
     let mut receiver = if let Some(mut game) = GAMES.get_mut(game_id) {
         // Checks if the player's name already exists
         let already_exists = game.players.iter().any(|p| p.user_name == player_name);

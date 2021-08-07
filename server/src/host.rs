@@ -102,6 +102,7 @@ async fn host_command_internal(
     }
 
     let mut game = GAMES.get_mut(&game_id).unwrap();
+    HOST_SENDERS.get_mut(&game_id).unwrap().in_progress = true;
 
     // The actual game loop
     while let Some(next_question) = game.questions.next() {
