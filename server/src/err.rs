@@ -40,7 +40,7 @@ impl<'a> FailResponse<'a> {
 
 #[derive(Serialize, Debug)]
 pub enum KascreechError {
-    IoErr(String),
+    IoError(String),
     UreqError(String),
     SerdeError(String),
     TungsteniteError(String),
@@ -53,7 +53,7 @@ pub enum KascreechError {
 impl std::fmt::Display for KascreechError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            KascreechError::IoErr(s) => write!(f, "io error {}", s),
+            KascreechError::IoError(s) => write!(f, "io error {}", s),
             KascreechError::UreqError(s) => write!(f, "ureq error {}", s),
             KascreechError::SerdeError(s) => write!(f, "serde error {}", s),
             KascreechError::TungsteniteError(s) => write!(f, "tungstenite error {}", s),
@@ -67,7 +67,7 @@ impl std::fmt::Display for KascreechError {
 
 impl From<std::io::Error> for KascreechError {
     fn from(io_err: std::io::Error) -> Self {
-        Self::IoErr(io_err.to_string())
+        Self::IoError(io_err.to_string())
     }
 }
 
