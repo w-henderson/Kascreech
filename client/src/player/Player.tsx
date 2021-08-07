@@ -29,7 +29,7 @@ export interface ResultType {
 interface PlayerProps {
   gameId: string,
   userName: string,
-  onFailure: (message: string) => void
+  onFailure: (errorType: string, message: string) => void
 }
 
 interface PlayerState {
@@ -79,7 +79,7 @@ class Player extends React.Component<PlayerProps, PlayerState> {
       if (data.success === true) {
         this.setState({ phase: PlayerPhase.Lobby });
       } else {
-        this.props.onFailure(data.message);
+        this.props.onFailure(data.errorType, data.errorMessage);
       }
     } else if (this.state.phase === PlayerPhase.Lobby || this.state.phase === PlayerPhase.Result) {
       if (data.event === "questionStart") {

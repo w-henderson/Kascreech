@@ -13,8 +13,20 @@ export enum AppPhase {
   Player
 }
 
+export enum KascreechError {
+  IoError,
+  UreqError,
+  SerdeError,
+  TungsteniteError,
+  FailedRead,
+  GameNotFound,
+  NameAlreadyExists,
+  UnrecognisedCommand
+}
+
 interface AppState {
   phase: AppPhase,
+  error: KascreechError | undefined,
   hostID: string,
   joinID: string,
   joinName: string
@@ -25,24 +37,40 @@ class App extends React.Component<{}, AppState> {
 
   constructor(props: {}) {
     super(props);
-    this.reset = this.reset.bind(this);
+    this.error = this.error.bind(this);
 
     this.state = {
       phase: AppPhase.Initial,
+      error: undefined,
       hostID: "",
       joinID: "",
       joinName: ""
     }
   }
 
-  reset(message: string) {
-    alert(message);
-    this.setState({
-      phase: AppPhase.Initial,
-      hostID: "",
-      joinID: "",
-      joinName: ""
-    })
+  error(errorType: string, message: string) {
+    let error = stringToError(errorType);
+
+    if (error === KascreechError.UreqError
+      || error === KascreechError.GameNotFound
+      || error === KascreechError.NameAlreadyExists) {
+      this.setState({
+        phase: AppPhase.Initial,
+        error,
+        hostID: "",
+        joinID: "",
+        joinName: ""
+      })
+    } else {
+      alert(`${errorType}: ${message}`);
+
+      this.setState({
+        phase: AppPhase.Initial,
+        hostID: "",
+        joinID: "",
+        joinName: ""
+      })
+    }
   }
 
   render() {
@@ -55,6 +83,7 @@ class App extends React.Component<{}, AppState> {
             joinID={this.state.joinID}
             joinName={this.state.joinName}
             hostID={this.state.hostID}
+            error={this.state.error}
             setState={(newState: any) => this.setState(newState)} />
         </div>
       )
@@ -65,7 +94,7 @@ class App extends React.Component<{}, AppState> {
           <aside className="circle" />
           <Host
             kahootID={this.state.hostID}
-            onFailure={this.reset} />
+            onFailure={this.error} />
         </div>
       )
     } else if (this.state.phase === AppPhase.Player) {
@@ -76,10 +105,24 @@ class App extends React.Component<{}, AppState> {
           <Player
             gameId={this.state.joinID}
             userName={this.state.joinName}
-            onFailure={this.reset} />
+            onFailure={this.error} />
         </div>
       )
     }
+  }
+}
+
+function stringToError(str: string): KascreechError | undefined {
+  switch (str) {
+    case "IoError": return KascreechError.IoError;
+    case "UreqError": return KascreechError.UreqError;
+    case "SerdeError": return KascreechError.SerdeError;
+    case "TungsteniteError": return KascreechError.TungsteniteError;
+    case "FailedRead": return KascreechError.FailedRead;
+    case "GameNotFound": return KascreechError.GameNotFound;
+    case "NameAlreadyExists": return KascreechError.NameAlreadyExists;
+    case "UnrecognisedCommand": return KascreechError.UnrecognisedCommand;
+    default: return undefined;
   }
 }
 

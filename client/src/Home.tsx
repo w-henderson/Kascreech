@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppPhase } from './App';
+import { AppPhase, KascreechError } from './App';
 import './styles/Home.scss';
 
 import logo from "./images/logo.png";
@@ -8,6 +8,7 @@ interface HomeProps {
   hostID: string,
   joinID: string,
   joinName: string,
+  error: KascreechError | undefined,
   setState: (newState: any) => void
 }
 
@@ -23,7 +24,19 @@ interface HomeState {
 class Home extends React.Component<HomeProps, HomeState> {
   constructor(props: HomeProps) {
     super(props);
-    this.state = { tab: Tab.Play }
+
+    if (this.props.error === KascreechError.UreqError) {
+      this.state = { tab: Tab.Host }
+    } else {
+      this.state = { tab: Tab.Play }
+    }
+
+    this.switchTab = this.switchTab.bind(this);
+  }
+
+  switchTab(tab: Tab) {
+    this.setState({ tab });
+    this.props.setState({ error: undefined });
   }
 
   render() {
@@ -34,7 +47,7 @@ class Home extends React.Component<HomeProps, HomeState> {
           <div>
             <div>
               <span className="active">Play</span>
-              <span onClick={() => this.setState({ tab: Tab.Host })}>Host</span>
+              <span onClick={() => this.switchTab(Tab.Host)}>Host</span>
             </div>
             <form>
               <input
@@ -42,15 +55,17 @@ class Home extends React.Component<HomeProps, HomeState> {
                 value={this.props.joinID}
                 type="tel"
                 autoComplete="off"
-                onChange={(e) => this.props.setState({ joinID: e.target.value })} />
+                className={this.props.error === KascreechError.GameNotFound ? "error" : undefined}
+                onChange={(e) => this.props.setState({ joinID: e.target.value, error: undefined })} />
               <input
                 placeholder="User Name"
                 value={this.props.joinName}
-                onChange={(e) => this.props.setState({ joinName: e.target.value })} />
+                className={this.props.error === KascreechError.NameAlreadyExists ? "error" : undefined}
+                onChange={(e) => this.props.setState({ joinName: e.target.value, error: undefined })} />
               <input
                 type="button"
                 value="Enter"
-                onClick={() => this.props.setState({ phase: AppPhase.Player })} />
+                onClick={() => this.props.setState({ phase: AppPhase.Player, error: undefined })} />
             </form>
           </div>
         </div>
@@ -61,18 +76,19 @@ class Home extends React.Component<HomeProps, HomeState> {
           <img src={logo} alt="Kascreech logo" />
           <div>
             <div>
-              <span onClick={() => this.setState({ tab: Tab.Play })}>Play</span>
+              <span onClick={() => this.switchTab(Tab.Play)}>Play</span>
               <span className="active">Host</span>
             </div>
             <form>
               <input
                 placeholder="Kahoot ID"
                 value={this.props.hostID}
-                onChange={(e) => this.props.setState({ hostID: e.target.value })} />
+                className={this.props.error === KascreechError.UreqError ? "error" : undefined}
+                onChange={(e) => this.props.setState({ hostID: e.target.value, error: undefined })} />
               <input
                 type="button"
                 value="Create"
-                onClick={() => this.props.setState({ phase: AppPhase.Host })} />
+                onClick={() => this.props.setState({ phase: AppPhase.Host, error: undefined })} />
             </form>
           </div>
         </div>
@@ -80,20 +96,5 @@ class Home extends React.Component<HomeProps, HomeState> {
     }
   }
 }
-
-/*
-  <div>
-    <h2>Host Game</h2>
-    <input placeholder="Kahoot ID" value={this.props.hostID} onChange={e => this.props.setState({ hostID: e.target.value })} />
-    <button onClick={() => this.props.setState({ phase: AppPhase.Host })}>Host</button>
-  </div>
-
-  <div>
-    <h2>Join Game</h2>
-    <input placeholder="Game ID" value={this.props.joinID} onChange={e => this.props.setState({ joinID: e.target.value })} />
-    <input placeholder="Name" value={this.props.joinName} onChange={e => this.props.setState({ joinName: e.target.value })} />
-    <button onClick={() => this.props.setState({ phase: AppPhase.Player })}>Join</button>
-  </div>
-*/
 
 export default Home;
