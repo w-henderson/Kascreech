@@ -104,147 +104,145 @@ async fn host_command_internal(
     let mut game = GAMES.get_mut(&game_id).unwrap();
 
     // The actual game loop
-    loop {
-        // Handle the next question
-        if let Some(next_question) = game.questions.next() {
-            let player_send_question = Message::Text(serde_json::to_string(&PlayerSendQuestion {
-                event: "questionStart",
-                number_of_answers: next_question.choices.len(),
-            })?);
+    while let Some(next_question) = game.questions.next() {
+        let player_send_question = Message::Text(serde_json::to_string(&PlayerSendQuestion {
+            event: "questionStart",
+            number_of_answers: next_question.choices.len(),
+        })?);
 
-            for player in &game.players {
-                player
-                    .player_sender
-                    .send(player_send_question.clone())
-                    .await
-                    .unwrap();
-            }
+        for player in &game.players {
+            player
+                .player_sender
+                .send(player_send_question.clone())
+                .await
+                .unwrap();
+        }
 
-            let host_send_question = Message::Text(serde_json::to_string(&HostSendQuestion {
-                question: &next_question.question,
-                duration: next_question.time,
-                answers: &next_question.choices,
-            })?);
+        let host_send_question = Message::Text(serde_json::to_string(&HostSendQuestion {
+            question: &next_question.question,
+            duration: next_question.time,
+            answers: &next_question.choices,
+        })?);
 
-            write.send(host_send_question).await?;
+        write.send(host_send_question).await?;
 
-            let mut points = Points::new(game.players.len().try_into().unwrap());
+        let mut points = Points::new(game.players.len().try_into().unwrap());
 
-            // The host is now ready to accept guesses
-            HOST_SENDERS.get_mut(&game_id).unwrap().receiving = true;
+        // The host is now ready to accept guesses
+        HOST_SENDERS.get_mut(&game_id).unwrap().receiving = true;
 
-            // Waiting for players to send answers, or the host
-            // to request the leaderboard
-            loop {
-                select! {
-                // A player's sent an answer
-                recv = question_receiver.next() => {
-                    if let Some(player_guess) = recv {
-                        // Checking the player exists
-                        if let Some(player) = game.players.iter_mut().find(|p| p.user_name == player_guess.user_name) {
-                            // The player has not played this round yet
-                            if !player.played {
-                                // Checking the guess is valid
-                                if let Some(choice) = next_question.choices.get(player_guess.index) {
-                                    let (points_this_round, streak) = if choice.correct {
-                                        let add_points = points.next_points();
+        // Waiting for players to send answers, or the host
+        // to request the leaderboard
+        loop {
+            select! {
+            // A player's sent an answer
+            recv = question_receiver.next() => {
+                if let Some(player_guess) = recv {
+                    // Checking the player exists
+                    if let Some(player) = game.players.iter_mut().find(|p| p.user_name == player_guess.user_name) {
+                        // The player has not played this round yet
+                        if !player.played {
+                            // Checking the guess is valid
+                            if let Some(choice) = next_question.choices.get(player_guess.index) {
+                                let (points_this_round, streak) = if choice.correct {
+                                    let add_points = points.next_points();
 
-                                        let points_this_round = <u16 as Into<usize>>::into(add_points);
+                                    let points_this_round = <u16 as Into<usize>>::into(add_points);
 
-                                        player.points += points_this_round;
-                                        player.streak += 1;
+                                    player.points += points_this_round;
+                                    player.streak += 1;
 
-                                        (points_this_round, player.streak)
-                                    } else {
-                                        player.streak = 0;
-                                        (0, 0)
-                                    };
+                                    (points_this_round, player.streak)
+                                } else {
+                                    player.streak = 0;
+                                    (0, 0)
+                                };
 
-                                    player.player_round_end = Some(
-                                        PlayerRoundEnd {
-                                            event: "questionEnd",
-                                            correct: choice.correct,
-                                            points_this_round,
-                                            points_total: player.points,
-                                            streak,
-                                            position: 0,
-                                            behind: None,
-                                        }
-                                    );
-                                }
-                            }
-                            player.played = true;
-                        }
-                    }
-                },
-                // The host's requested a leaderboard
-                message = read.next() => {
-                    if let Some(Ok(message)) = message {
-                            if let Ok(message) = message.to_text() {
-                                if let Ok(host_request_leaderboard) =
-                                    serde_json::from_str::<Command>(message)
-                                {
-                                    if host_request_leaderboard.command == "leaderboard" {
-                                        break;
+                                player.player_round_end = Some(
+                                    PlayerRoundEnd {
+                                        event: "questionEnd",
+                                        correct: choice.correct,
+                                        points_this_round,
+                                        points_total: player.points,
+                                        streak,
+                                        position: 0,
+                                        behind: None,
                                     }
-                                }
+                                );
                             }
                         }
+                        player.played = true;
                     }
                 }
-            }
-
-            HOST_SENDERS
-                .get_mut(&game_id)
-                .ok_or(FailResponse::new(KascreechError::GameNotFound, None))?
-                .receiving = false;
-
-            // Actually send the leaderboard
-            game.players.sort_by(|a, b| a.points.cmp(&b.points));
-
-            let leader_board_response =
-                Message::Text(serde_json::to_string(&LeaderBoardResponse {
-                    leaderboard: &game.players,
-                })?);
-
-            {
-                let player_len = game.players.len();
-                let mut player_peek = game.players.iter_mut().enumerate().peekable();
-                while let Some((pos, player)) = player_peek.next() {
-                    let behind = player_peek.peek().map(|p| p.1.user_name.clone());
-                    player.send(player_len - pos, behind).await.unwrap();
-                }
-            }
-
-            write.send(leader_board_response).await?;
-
-            // Waiting for the host to request the next question
-            loop {
-                if let Some(Ok(message)) = read.next().await {
-                    if let Ok(message) = message.to_text() {
-                        if let Ok(host_request_next_question) =
-                            serde_json::from_str::<Command>(message)
-                        {
-                            if host_request_next_question.command == "question" {
-                                break;
+            },
+            // The host's requested a leaderboard
+            message = read.next() => {
+                if let Some(Ok(message)) = message {
+                        if let Ok(message) = message.to_text() {
+                            if let Ok(host_request_leaderboard) =
+                                serde_json::from_str::<Command>(message)
+                            {
+                                if host_request_leaderboard.command == "leaderboard" {
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
         }
-        // No questions remain, the game ends
-        else {
-            game.players.sort_by(|a, b| a.points.cmp(&b.points));
-            for (i, player) in game.players.iter().enumerate() {
-                let game_over = Message::Text(serde_json::to_string(&GameOver {
-                    event: "end",
-                    position: i + 1,
-                })?);
-                player.player_sender.send(game_over).await.unwrap();
+
+        HOST_SENDERS
+            .get_mut(&game_id)
+            .ok_or(FailResponse::new(KascreechError::GameNotFound, None))?
+            .receiving = false;
+
+        // Actually send the leaderboard
+        game.players.sort_by(|a, b| a.points.cmp(&b.points));
+
+        let leader_board_response = Message::Text(serde_json::to_string(&LeaderBoardResponse {
+            leaderboard: &game.players,
+        })?);
+
+        {
+            let player_len = game.players.len();
+            let mut player_peek = game.players.iter_mut().enumerate().peekable();
+            while let Some((pos, player)) = player_peek.next() {
+                let behind = player_peek.peek().map(|p| p.1.user_name.clone());
+                player.send(player_len - pos, behind).await.unwrap();
             }
+        }
+
+        write.send(leader_board_response).await?;
+
+        // If no questions remain, break out of the game loop
+        if game.questions.len() == 0 {
             break;
         }
+
+        // Waiting for the host to request the next question
+        loop {
+            if let Some(Ok(message)) = read.next().await {
+                if let Ok(message) = message.to_text() {
+                    if let Ok(host_request_next_question) = serde_json::from_str::<Command>(message)
+                    {
+                        if host_request_next_question.command == "question" {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // No questions remain, the game ends
+    game.players.sort_by(|a, b| a.points.cmp(&b.points));
+    for (i, player) in game.players.iter().enumerate() {
+        let game_over = Message::Text(serde_json::to_string(&GameOver {
+            event: "end",
+            position: i + 1,
+        })?);
+        player.player_sender.send(game_over).await.unwrap();
     }
 
     Ok(())
