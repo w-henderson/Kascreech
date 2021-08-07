@@ -71,7 +71,7 @@ div.Home {
         opacity: 1;
       }
 
-      &[type=button] {
+      &[type=button], &[type=submit] {
         background-color: var(--dark);
         color: var(--light);
         font-weight: 800;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FormEvent } from 'react';
 import { AppPhase, KascreechError } from './App';
 import './styles/Home.scss';
 
@@ -32,11 +32,17 @@ class Home extends React.Component<HomeProps, HomeState> {
     }
 
     this.switchTab = this.switchTab.bind(this);
+    this.startGame = this.startGame.bind(this);
   }
 
   switchTab(tab: Tab) {
     this.setState({ tab });
     this.props.setState({ error: undefined });
+  }
+
+  startGame(e: FormEvent, mode: AppPhase) {
+    e.preventDefault();
+    this.props.setState({ phase: mode, error: undefined });
   }
 
   render() {
@@ -63,9 +69,9 @@ class Home extends React.Component<HomeProps, HomeState> {
                 className={this.props.error === KascreechError.NameAlreadyExists ? "error" : undefined}
                 onChange={(e) => this.props.setState({ joinName: e.target.value, error: undefined })} />
               <input
-                type="button"
+                type="submit"
                 value="Enter"
-                onClick={() => this.props.setState({ phase: AppPhase.Player, error: undefined })} />
+                onClick={(e) => this.startGame(e, AppPhase.Player)} />
             </form>
           </div>
         </div>
@@ -86,9 +92,9 @@ class Home extends React.Component<HomeProps, HomeState> {
                 className={this.props.error === KascreechError.UreqError ? "error" : undefined}
                 onChange={(e) => this.props.setState({ hostID: e.target.value, error: undefined })} />
               <input
-                type="button"
+                type="submit"
                 value="Create"
-                onClick={() => this.props.setState({ phase: AppPhase.Host, error: undefined })} />
+                onClick={(e) => this.startGame(e, AppPhase.Host)} />
             </form>
           </div>
         </div>
