@@ -22,14 +22,18 @@ macro_rules! send_error {
 #[derive(Serialize)]
 pub struct FailResponse<'a> {
     success: bool,
-    message: &'a KascreechError,
+    #[serde(rename = "errorType")]
+    error_type: &'a KascreechError,
+    #[serde(rename = "errorMessage")]
+    error_message: String,
 }
 
 impl<'a> FailResponse<'a> {
-    pub const fn new(message: &'a KascreechError) -> Self {
+    pub fn new(message: &'a KascreechError) -> Self {
         Self {
             success: false,
-            message,
+            error_type: message,
+            error_message: format!("{:?}", message),
         }
     }
 }
