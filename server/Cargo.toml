@@ -1,13 +1,22 @@
 [package]
-name = "server"
+name = "kascreech"
 version = "0.1.0"
-authors = ["Elliot W. <elliotwhybrow@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-actix-web = "3.3.2"
-actix-cors = "0.5.3"
-actix-files = "0.4.1"
-serde = {version = "^1", features = ["derive"]}
+tokio = { version = "^1.8", features = ["full"] }
+tokio-tungstenite = "*"
+tokio-stream = "*"
+
+ureq = { version = "^2.1", features = ["json"] }
+
+serde = { version = "^1", features = ["derive", "rc"] }
 serde_json = "*"
-fastrand = "1.4.0"
+
+dashmap = "^4.0"
+fastrand = "^1.4"
+once_cell = "^1.8"
+futures = "^0.3"
+
+log = "^0.4"
+simple-log = "*"

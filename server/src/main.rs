@@ -1,104 +1,92 @@
-#![feature(drain_filter)]
+#![warn(clippy::nursery, clippy::pedantic)]
 
-mod quiz;
-mod types;
+mod command;
+mod err;
+mod game;
+mod player;
 
-use std::{sync::Mutex, time::SystemTime};
+mod host;
+mod join;
 
-use actix_cors::Cors;
-use actix_web::{web, App, HttpResponse, HttpServer};
+use command::Command;
+use err::{FailResponse, KascreechError, KascreechResult};
+use game::{Game, Senders};
 
-use quiz::Games;
-use types::{GUIDRequest, GameIdRequest, Guess};
+use simple_log::LogConfigBuilder;
 
-async fn handle_guess(request: web::Json<Guess>, games: web::Data<Mutex<Games>>) -> HttpResponse {
-    let mut games = games.lock().unwrap();
-    match games
-        .games
-        .iter_mut()
-        .find(|a| a.game_id() == request.game_id)
-    {
-        Some(game) => {
-            game.add_score(request.into_inner());
-            HttpResponse::Ok().finish()
-        }
-        None => HttpResponse::NotFound().finish(),
+use tokio::net::{TcpListener, TcpStream};
+use tokio_tungstenite::{tungstenite::Message, WebSocketStream};
+
+use dashmap::DashMap;
+
+use futures::{
+    stream::{SplitSink, SplitStream},
+    SinkExt, StreamExt,
+};
+
+use once_cell::sync::Lazy;
+
+type Write = SplitSink<WebSocketStream<TcpStream>, Message>;
+type Read = SplitStream<WebSocketStream<TcpStream>>;
+
+static GAMES: Lazy<DashMap<String, Game>> = Lazy::new(DashMap::default);
+static HOST_SENDERS: Lazy<DashMap<String, Senders>> = Lazy::new(DashMap::default);
+
+#[tokio::main]
+async fn main() -> Result<(), std::io::Error> {
+    let log_config = LogConfigBuilder::builder()
+        .path("log.log")
+        .output_file()
+        .level("info")
+        .build();
+
+    simple_log::new(log_config).unwrap();
+
+    let addr = std::env::args()
+        .nth(1)
+        .unwrap_or_else(|| "0.0.0.0:80".to_string());
+
+    let try_socket = TcpListener::bind(&addr).await;
+    let listener = try_socket.expect("Failed to bind");
+
+    while let Ok((stream, _)) = listener.accept().await {
+        tokio::spawn(accept_connection(stream));
     }
+
+    Ok(())
 }
 
-async fn send_game_info(
-    request: web::Json<GUIDRequest>,
-    games: web::Data<Mutex<Games>>,
-) -> HttpResponse {
-    let mut games = games.lock().unwrap();
+async fn accept_connection(stream: TcpStream) -> KascreechResult<()> {
+    let ws_stream = tokio_tungstenite::accept_async(stream).await?;
 
-    match games
-        .games
-        .iter_mut()
-        .find(|a| a.game_id() == request.game_id)
-    {
-        Some(game) => {
-            if SystemTime::now()
-                .duration_since(SystemTime::UNIX_EPOCH)
-                .unwrap()
-                .as_millis()
-                < *game.chungus().game_start_time()
-            {
-                let id = request.into_inner();
-                game.add_player((id.uuid, id.username));
-                HttpResponse::Ok().json(&game.as_setup_game())
-            } else {
-                HttpResponse::NotFound().finish()
-            }
-        }
-        None => HttpResponse::NotFound().finish(),
+    let (mut write, mut read) = ws_stream.split();
+
+    let message = read
+        .next()
+        .await
+        .ok_or(FailResponse::new(KascreechError::FailedRead, None))??;
+
+    let s = message.to_text()?;
+
+    let command = serde_json::from_str::<Command>(s)?;
+
+    let err = match command.command {
+        "host" => host::host_command(s, &mut write, &mut read).await,
+        "join" => join::join_command(s, &mut write, &mut read).await,
+        _ => Err(FailResponse::new(
+            KascreechError::UnrecognisedCommand,
+            Some(command.command.to_string()),
+        )),
+    };
+
+    if let Err(e) = err {
+        log::error!("{}", e);
+
+        write
+            .send(Message::Text(serde_json::to_string(&e).unwrap()))
+            .await
+            .unwrap();
     }
-}
 
-async fn chungus(games: web::Data<Mutex<Games>>) -> HttpResponse {
-    let mut games = games.lock().unwrap();
-    games.check();
-
-    let rdr = std::fs::File::open("quizzes/topolocheese.json").unwrap();
-    games.generate_new_game(serde_json::from_reader(rdr).unwrap());
-    HttpResponse::Ok().json(&games.games.last().unwrap().chungus())
-}
-
-async fn leaderboard(
-    request: web::Json<GameIdRequest>,
-    games: web::Data<Mutex<Games>>,
-) -> HttpResponse {
-    let mut games = games.lock().unwrap();
-    match games
-        .games
-        .iter_mut()
-        .find(|a| a.game_id() == request.game_id)
-    {
-        Some(game) => {
-            game.sort();
-            HttpResponse::Ok().json(&game.players)
-        }
-        None => HttpResponse::NotFound().finish(),
-    }
-}
-
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    let games = web::Data::new(Mutex::new(Games::default()));
-
-    HttpServer::new(move || {
-        let cors = Cors::permissive();
-
-        App::new()
-            .wrap(cors)
-            .app_data(games.clone())
-            .route("/leaderboard", web::post().to(leaderboard))
-            .route("/generateGame", web::post().to(send_game_info))
-            .route("/makeGuess", web::post().to(handle_guess))
-            .route("/chungusGameInfo", web::post().to(chungus))
-            .service(actix_files::Files::new("/", "../web").index_file("index.html"))
-    })
-    .bind("0.0.0.0:8080")?
-    .run()
-    .await
+    Ok(())
 }

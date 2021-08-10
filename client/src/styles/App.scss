@@ -1,0 +1,30 @@
+div.App {
+  width: 100%;
+  height: 100%;
+  background-color: var(--accent);
+  display: flex;
+  place-items: center;
+  place-content: center;
+
+  aside {
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.1);
+
+    &.rectangle {
+      top: -15vmin;
+      left: -15vmin;
+      transform: rotate(45deg);
+      min-width: 75vmin;
+      min-height: 75vmin;
+    }
+
+    &.circle {
+      border-radius: 50%;
+      bottom: -15vmin;
+      right: -15vmin;
+      transform: rotate(45deg);
+      min-width: 75vmin;
+      min-height: 75vmin;
+    }
+  }
+}
