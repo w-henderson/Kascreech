@@ -52,15 +52,15 @@ Make sure you've set the `REACT_APP_WS_ADDR` environment variable in `client/.en
 ## Screenshots
 
 ### Desktop
-| Homepage | Lobby |
+| | |
 | --- | --- |
 | ![Homepage screenshot](assets/screenshots_desktop/home.png) | ![Lobby screenshot](assets/screenshots_desktop/lobby.png) |
 
-| Question | Leaderboard |
+| | |
 | --- | --- |
 | ![Question screenshot](assets/screenshots_desktop/question.png) | ![Leaderboard screenshot](assets/screenshots_desktop/leaderboard.png) |
 
 ### Mobile
-| Homepage | Question | Result | Placement |
+| | | | |
 | --- | --- | --- | --- |
 | ![Homepage screenshot](assets/screenshots_mobile/home.png) | ![Question screenshot](assets/screenshots_mobile/guess.png) | ![Result screenshot](assets/screenshots_mobile/correct.png) | ![Placement screenshot](assets/screenshots_mobile/end.png) |
