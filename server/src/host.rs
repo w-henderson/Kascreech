@@ -232,6 +232,9 @@ async fn host_command_internal(
                         }
                     }
                 }
+            } else {
+                // If the host disconnects, close the thread
+                return Ok(());
             }
         }
     }
