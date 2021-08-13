@@ -50,7 +50,8 @@ class Home extends React.Component<HomeProps, HomeState> {
       return (
         <div className="Home">
           <img src={logo} alt="Kascreech logo" />
-          <div>
+
+          <div className="form">
             <div>
               <span className="active">Play</span>
               <span onClick={() => this.switchTab(Tab.Host)}>Host</span>
@@ -74,13 +75,22 @@ class Home extends React.Component<HomeProps, HomeState> {
                 onClick={(e) => this.startGame(e, AppPhase.Player)} />
             </form>
           </div>
+
+          <footer>
+            <span>
+              <a href="/terms.html" target="_blank" rel="noreferrer">Terms</a>|
+              <a href="/privacy.html" target="_blank" rel="noreferrer">Privacy</a>|
+              <a href="https://github.com/w-henderson/Kascreech" target="_blank" rel="noreferrer">GitHub</a>
+            </span>
+          </footer>
         </div>
       )
     } else {
       return (
         <div className="Home">
           <img src={logo} alt="Kascreech logo" />
-          <div>
+
+          <div className="form">
             <div>
               <span onClick={() => this.switchTab(Tab.Play)}>Play</span>
               <span className="active">Host</span>
@@ -97,6 +107,8 @@ class Home extends React.Component<HomeProps, HomeState> {
                 onClick={(e) => this.startGame(e, AppPhase.Host)} />
             </form>
           </div>
+
+          <div></div>
         </div>
       )
     }

@@ -10,7 +10,7 @@ div.Home {
     margin: 0 0 32px 0;
   }
 
-  > div {
+  div.form {
     width: 320px;
     max-width: 85vw;
     background-color: var(--light);
@@ -80,6 +80,27 @@ div.Home {
         &:hover {
           background-color: var(--darker);
         }
+      }
+    }
+  }
+
+  footer {
+    position: fixed;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.75);
+    cursor: default;
+
+    a {
+      text-decoration: none;
+      color: var(--light);
+      margin: 0 6px;
+      opacity: 0.75;
+
+      &:hover {
+        opacity: 1;
+        text-decoration: underline;
       }
     }
   }
