@@ -108,7 +108,13 @@ class Home extends React.Component<HomeProps, HomeState> {
             </form>
           </div>
 
-          <div></div>
+          <footer>
+            <span>
+              <a href="/terms.html" target="_blank" rel="noreferrer">Terms</a>|
+              <a href="/privacy.html" target="_blank" rel="noreferrer">Privacy</a>|
+              <a href="https://github.com/w-henderson/Kascreech" target="_blank" rel="noreferrer">GitHub</a>
+            </span>
+          </footer>
         </div>
       )
     }
