@@ -22,7 +22,7 @@ pub async fn host_command(
     write: &mut Write,
     read: &mut Read,
 ) -> KascreechResult<()> {
-    let game_id = generate_game_id();
+    let game_id: String = repeat_with(|| fastrand::digit(10)).take(6).collect();
 
     let to_return = host_command_internal(game_id.clone(), host_request, write, read).await;
 
@@ -36,10 +36,6 @@ pub async fn host_command(
     HOST_SENDERS.remove(&game_id);
 
     to_return
-}
-
-fn generate_game_id() -> String {
-    repeat_with(|| fastrand::digit(10)).take(6).collect()
 }
 
 async fn host_command_internal(
