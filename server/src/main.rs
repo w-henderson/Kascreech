@@ -53,7 +53,9 @@ async fn main() -> Result<(), std::io::Error> {
     let listener = try_socket.expect("Failed to bind");
 
     while let Ok((stream, _)) = listener.accept().await {
-        tokio::spawn(accept_connection(stream));
+        if let Err(e) = tokio::spawn(accept_connection(stream)).await {
+            log::error!("{}", e);
+        };
     }
 
     Ok(())
