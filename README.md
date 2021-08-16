@@ -26,7 +26,7 @@ Make sure you've set the `REACT_APP_WS_ADDR` environment variable in `client/.en
 ### Deploying to Production
 1. Build the React app for production by running `npm run build` in the client directory.
 2. Build the Rust back-end by running `cargo build --release` in the server directory.
-3. Deploy on your platform of choice. Tungstenite does not support HTTPS on the server, so you'll need a platform that allows you to force HTTP. Netlify and Vercel both force HTTPS, so you won't be able to deploy on either of them. I recommend a low-spec VPS where you can just put a web server (I recommend [Humphrey](https://github.com/w-henderson/Humphrey)) and the server in the same box.
+3. Deploy on your platform of choice.
 
 ## Tech Stack
 
@@ -36,11 +36,7 @@ Make sure you've set the `REACT_APP_WS_ADDR` environment variable in `client/.en
   - [TypeScript](https://www.typescriptlang.org/)
   - [Sass](https://sass-lang.com/) for styling
   - [Material Community Icons](https://materialdesignicons.com/)
-- Hosted using [GCP Compute Engine](https://cloud.google.com/compute)
-  - 1x `f1-micro` in `us-east1-b`
-- Served using [Humphrey](https://github.com/w-henderson/Humphrey)
-  - Cache size of 4MiB
-  - All other configuration options default
+- Hosted using [Netlify](https://netlify.com)
 
 ### Server
 - Written in [Rust](https://www.rust-lang.org/)
@@ -48,6 +44,9 @@ Make sure you've set the `REACT_APP_WS_ADDR` environment variable in `client/.en
   - [`ureq`](https://github.com/algesten/ureq) for ~~stealing~~ requesting information from Kahoot
 - Hosted using [GCP Compute Engine](https://cloud.google.com/compute)
   - 1x `f1-micro` in `us-east1-b`
+
+### Cloudflare
+Cloudflare is used to allow access to the WebSocket through HTTPS despite the Kascreech server itself not supporting it.
 
 ## Screenshots
 
