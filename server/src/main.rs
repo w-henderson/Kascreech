@@ -53,9 +53,7 @@ async fn main() -> Result<(), std::io::Error> {
     let listener = try_socket.expect("Failed to bind");
 
     while let Ok((stream, _)) = listener.accept().await {
-        if let Err(e) = tokio::spawn(accept_connection(stream)).await {
-            log::error!("{}", e);
-        };
+        tokio::spawn(accept_connection(stream));
     }
 
     Ok(())
@@ -68,7 +66,13 @@ const WEBSOCKET_CONFIG: WebSocketConfig = WebSocketConfig {
     accept_unmasked_frames: false,
 };
 
-async fn accept_connection(stream: TcpStream) -> KascreechResult<()> {
+async fn accept_connection(stream: TcpStream) {
+    if let Err(e) = accept_connection_internal(stream).await {
+        log::error!("{}", e);
+    }
+}
+
+async fn accept_connection_internal(stream: TcpStream) -> KascreechResult<()> {
     let ws_stream =
         tokio_tungstenite::accept_async_with_config(stream, Some(WEBSOCKET_CONFIG)).await?;
 
