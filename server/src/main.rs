@@ -15,7 +15,10 @@ use game::{Game, Senders};
 use simple_log::LogConfigBuilder;
 
 use tokio::net::{TcpListener, TcpStream};
-use tokio_tungstenite::{tungstenite::Message, WebSocketStream};
+use tokio_tungstenite::{
+    tungstenite::{protocol::WebSocketConfig, Message},
+    WebSocketStream,
+};
 
 use dashmap::DashMap;
 
@@ -56,8 +59,16 @@ async fn main() -> Result<(), std::io::Error> {
     Ok(())
 }
 
+const WEBSOCKET_CONFIG: WebSocketConfig = WebSocketConfig {
+    max_send_queue: Some(5),
+    max_message_size: Some(1 << 20),
+    max_frame_size: Some(16 << 20),
+    accept_unmasked_frames: false,
+};
+
 async fn accept_connection(stream: TcpStream) -> KascreechResult<()> {
-    let ws_stream = tokio_tungstenite::accept_async(stream).await?;
+    let ws_stream =
+        tokio_tungstenite::accept_async_with_config(stream, Some(WEBSOCKET_CONFIG)).await?;
 
     let (mut write, mut read) = ws_stream.split();
 
