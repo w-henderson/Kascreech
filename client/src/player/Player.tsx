@@ -54,7 +54,7 @@ class Player extends React.Component<PlayerProps, PlayerState> {
   }
 
   componentDidMount() {
-    this.websocket = new WebSocket(`ws://${SERVER_ADDR}`);
+    this.websocket = new WebSocket(SERVER_ADDR || "");
     this.websocket.onmessage = this.wsHandler.bind(this);
     this.websocket.onopen = () => {
       this.websocket?.send(JSON.stringify({
