@@ -8,10 +8,6 @@ tokio = { version = "^1.8", features = ["full"] }
 tokio-tungstenite = "*"
 tokio-stream = "*"
 
-httparse = { version = "^1.4", default-features = false }
-sha1 = { version = "^0.6", default-features = false }
-base64 = { version = "^0.13", default-features = false }
-
 ureq = { version = "^2.1", features = ["json"] }
 
 serde = { version = "^1", features = ["derive", "rc"] }
