@@ -8,8 +8,7 @@ use tokio_tungstenite::tungstenite::Message;
 use crate::{
     command::Command,
     err::{FailResponse, KascreechError, KascreechResult},
-    game::{Game, KahootAnswer},
-    player::Player,
+    game::Game,
     Read, Senders, Write, GAMES, HOST_SENDERS,
 };
 
@@ -74,9 +73,10 @@ async fn host_command_internal(
             // A new player's joined
             recv = player_receiver.next() => {
                 if let Some(new_player) = recv {
-                    let message = Message::Text(serde_json::to_string(&PlayerJoined {
-                        event: "newPlayer", player_name: &new_player
-                    })?);
+                    let message = Message::Text(serde_json::to_string(&serde_json::json!({
+                        "event": "newPlayer",
+                        "playerName": new_player
+                    }))?);
 
                     write.send(message).await?;
                 }
@@ -102,10 +102,9 @@ async fn host_command_internal(
 
     // The actual game loop
     while let Some(next_question) = game.questions.next() {
-        let player_send_question = Message::Text(serde_json::to_string(&PlayerSendQuestion {
-            event: "questionStart",
-            number_of_answers: next_question.choices.len(),
-        })?);
+        let player_send_question = Message::Text(serde_json::to_string(
+            &serde_json::json!({"event": "questionStart", "numberOfAnswers": next_question.choices.len()}),
+        )?);
 
         for player in &game.players {
             player
@@ -115,11 +114,9 @@ async fn host_command_internal(
                 .unwrap();
         }
 
-        let host_send_question = Message::Text(serde_json::to_string(&HostSendQuestion {
-            question: &next_question.question,
-            duration: next_question.time,
-            answers: &next_question.choices,
-        })?);
+        let host_send_question = Message::Text(serde_json::to_string(
+            &serde_json::json!({"question": &next_question.question, "duration": next_question.time, "answers": &next_question.choices}),
+        )?);
 
         write.send(host_send_question).await?;
 
@@ -197,9 +194,9 @@ async fn host_command_internal(
         // Actually send the leaderboard
         game.players.sort_by(|a, b| a.points.cmp(&b.points));
 
-        let leader_board_response = Message::Text(serde_json::to_string(&LeaderBoardResponse {
-            leaderboard: &game.players,
-        })?);
+        let leader_board_response = Message::Text(serde_json::to_string(
+            &serde_json::json!({"leaderboard": &game.players}),
+        )?);
 
         {
             let player_len = game.players.len();
@@ -238,10 +235,11 @@ async fn host_command_internal(
     // No questions remain, the game ends
     game.players.sort_by(|b, a| a.points.cmp(&b.points));
     for (i, player) in game.players.iter().enumerate() {
-        let game_over = Message::Text(serde_json::to_string(&GameOver {
-            event: "end",
-            position: i + 1,
-        })?);
+        let game_over = Message::Text(serde_json::to_string(&serde_json::json!({
+            "event": "end",
+            "position": i + 1
+        }))?);
+
         player.player_sender.send(game_over).await.unwrap();
     }
 
@@ -307,36 +305,4 @@ impl Game {
             question_count: self.questions.len(),
         }
     }
-}
-
-#[derive(Serialize)]
-struct PlayerJoined<'a> {
-    event: &'a str,
-    #[serde(rename = "playerName")]
-    player_name: &'a str,
-}
-
-#[derive(Serialize)]
-struct PlayerSendQuestion {
-    event: &'static str,
-    #[serde(rename = "numberOfAnswers")]
-    number_of_answers: usize,
-}
-
-#[derive(Serialize)]
-struct HostSendQuestion<'a> {
-    question: &'a str,
-    duration: usize,
-    answers: &'a [KahootAnswer],
-}
-
-#[derive(Serialize)]
-struct LeaderBoardResponse<'a> {
-    leaderboard: &'a [Player],
-}
-
-#[derive(Serialize)]
-struct GameOver {
-    event: &'static str,
-    position: usize,
 }

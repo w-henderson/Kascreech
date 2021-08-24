@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_tungstenite::tungstenite::Message;
@@ -55,7 +55,9 @@ pub async fn join_command(
         game.players
             .push(Player::new(Arc::clone(&player_name), player_sender));
 
-        let message = Message::Text(serde_json::to_string(&SuccessResponse { success: true })?);
+        let message = Message::Text(serde_json::to_string(
+            &serde_json::json!({"success": true}),
+        )?);
 
         write.send(message).await?;
 
@@ -118,11 +120,6 @@ struct JoinRequest<'a> {
     game_id: &'a str,
     #[serde(rename = "playerName")]
     player_name: String,
-}
-
-#[derive(Serialize)]
-struct SuccessResponse {
-    success: bool,
 }
 
 /// A client's guess
