@@ -23,6 +23,20 @@ impl FailResponse {
             error_message,
         }
     }
+
+    pub fn none_option() -> Self {
+        Self {
+            success: false,
+            error_type: KascreechError::FailedRead,
+            error_message: Some("An option was none".into()),
+        }
+    }
+}
+
+impl From<ParseError> for FailResponse {
+    fn from(error: ParseError) -> Self {
+        Self::new(KascreechError::FailedRead, Some(error.to_string()))
+    }
 }
 
 impl IntoJson for KascreechError {

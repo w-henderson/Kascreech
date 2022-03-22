@@ -6,6 +6,13 @@ use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::vec::IntoIter;
 
+#[derive(Clone)]
+pub enum ClientStatus {
+    Loading,
+    Playing(String),
+    Hosting(String),
+}
+
 pub struct Game {
     pub id: String,
     pub questions: IntoIter<Question>,
