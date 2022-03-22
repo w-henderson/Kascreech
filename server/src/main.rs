@@ -11,6 +11,7 @@ use types::{ClientStatus, Game};
 use humphrey::handlers::serve_dir;
 use humphrey::App;
 
+use humphrey_ws::async_app::AsyncSender;
 use humphrey_ws::{async_websocket_handler, AsyncStream, AsyncWebsocketApp, Message};
 
 use humphrey_json::Value;
@@ -24,6 +25,7 @@ use std::thread::spawn;
 pub struct AppState {
     clients: RwLock<HashMap<SocketAddr, ClientStatus>>,
     games: Mutex<HashMap<String, Game>>,
+    global_sender: Mutex<Option<AsyncSender>>,
 }
 
 fn main() {
@@ -31,6 +33,9 @@ fn main() {
         .with_connect_handler(connect_handler)
         .with_disconnect_handler(disconnect_handler)
         .with_message_handler(message_handler_internal);
+
+    let sender = ws_app.sender();
+    *ws_app.get_state().global_sender.lock().unwrap() = Some(sender);
 
     let humphrey_app: App<()> = App::new()
         .with_path_aware_route("/*", serve_dir("../client/build"))

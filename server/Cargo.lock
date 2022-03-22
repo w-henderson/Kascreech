@@ -73,9 +73,9 @@ checksum = "321273e363e1f6267f3adcf8a6fe832222f8c7483bb1c8f25ee29209ac23198c"
 
 [[package]]
 name = "humphrey_ws"
-version = "0.3.1"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca385cce4dcaefc7411442df7b3fa010b5871db8d10c68006ea01716f625de7c"
+checksum = "ae97f655a6f478c28add98f39f0f1fef3912d84976e556369b109e26af345a90"
 dependencies = [
  "humphrey",
 ]

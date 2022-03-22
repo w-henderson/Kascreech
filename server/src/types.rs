@@ -17,6 +17,7 @@ pub struct Game {
     pub id: String,
     pub questions: IntoIter<Question>,
     pub players: HashMap<SocketAddr, Player>,
+    pub host: SocketAddr,
 }
 
 pub struct Player {

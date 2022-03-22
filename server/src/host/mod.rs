@@ -39,6 +39,7 @@ pub fn host(
         id: id.clone(),
         questions: kahoot.questions.into_iter(),
         players: HashMap::new(),
+        host: stream.peer_addr(),
     };
 
     let mut games = state.games.lock().unwrap();
