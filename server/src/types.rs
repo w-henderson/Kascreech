@@ -16,8 +16,16 @@ pub enum ClientStatus {
 pub struct Game {
     pub id: String,
     pub questions: IntoIter<Question>,
+    pub phase: GamePhase,
     pub players: HashMap<SocketAddr, Player>,
     pub host: SocketAddr,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum GamePhase {
+    Lobby,
+    Question,
+    Leaderboard,
 }
 
 pub struct Player {
@@ -38,24 +46,19 @@ pub struct PlayerRoundEnd {
     pub behind: Option<String>,
 }
 
-pub struct KahootGame {
-    pub title: String,
-    pub questions: Vec<Question>,
+pub struct LeaderboardMessage {
+    pub leaderboard: Vec<Player>,
 }
 
 pub struct Question {
     pub question: String,
-    pub time: usize,
-    pub choices: Vec<Answer>,
+    pub duration: usize,
+    pub answers: Vec<Answer>,
 }
 
 pub struct Answer {
-    pub answer: String,
+    pub text: String,
     pub correct: bool,
-}
-
-pub struct LeaderboardMessage {
-    pub leaderboard: Vec<Player>,
 }
 
 impl IntoJson for Player {
@@ -91,20 +94,14 @@ json_map! {
 }
 
 json_map! {
-    KahootGame,
-    title => "title",
-    questions => "questions"
-}
-
-json_map! {
     Question,
     question => "question",
-    time => "time",
-    choices => "choices"
+    duration => "duration",
+    answers => "answers"
 }
 
 json_map! {
     Answer,
-    answer => "answer",
+    text => "text",
     correct => "correct"
 }

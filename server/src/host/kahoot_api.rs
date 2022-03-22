@@ -1,9 +1,9 @@
-use crate::types::KahootGame;
-
 use humphrey::http::address::Address;
 use humphrey::http::headers::RequestHeader;
 use humphrey::http::method::Method;
 use humphrey::http::{Request, Response};
+
+use humphrey_json::prelude::*;
 
 use rustls::{Certificate, ClientConfig, ClientConnection, RootCertStore, StreamOwned};
 use rustls_native_certs::load_native_certs;
@@ -15,7 +15,44 @@ use std::lazy::SyncOnceCell;
 use std::net::TcpStream;
 use std::sync::Arc;
 
+use crate::types::{Answer, Question};
+
 static CLIENT_CONFIG: SyncOnceCell<Arc<ClientConfig>> = SyncOnceCell::new();
+
+pub struct KahootGame {
+    pub title: String,
+    pub questions: Vec<KahootQuestion>,
+}
+
+pub struct KahootQuestion {
+    pub question: String,
+    pub time: usize,
+    pub choices: Vec<KahootAnswer>,
+}
+
+pub struct KahootAnswer {
+    pub answer: String,
+    pub correct: bool,
+}
+
+json_map! {
+    KahootGame,
+    title => "title",
+    questions => "questions"
+}
+
+json_map! {
+    KahootQuestion,
+    question => "question",
+    time => "time",
+    choices => "choices"
+}
+
+json_map! {
+    KahootAnswer,
+    answer => "answer",
+    correct => "correct"
+}
 
 pub fn get_kahoot(id: &str) -> Result<KahootGame, Box<dyn Error>> {
     let request = Request {
@@ -56,6 +93,26 @@ pub fn generate_id() -> String {
     let id = u32::from_be_bytes(buf) % 1_000_000;
 
     format!("{:06}", id)
+}
+
+pub fn kahoot_questions_to_normal_questions(
+    kahoot_questions: Vec<KahootQuestion>,
+) -> Vec<Question> {
+    kahoot_questions
+        .into_iter()
+        .map(|q| Question {
+            question: q.question,
+            duration: q.time / 1000,
+            answers: q
+                .choices
+                .into_iter()
+                .map(|a| Answer {
+                    text: a.answer,
+                    correct: a.correct,
+                })
+                .collect(),
+        })
+        .collect()
 }
 
 fn init_client_config() -> Arc<ClientConfig> {

@@ -1,5 +1,5 @@
 use crate::err::{FailResponse, KascreechError};
-use crate::types::{ClientStatus, Player};
+use crate::types::{ClientStatus, GamePhase, Player};
 use crate::AppState;
 
 use humphrey_ws::{AsyncStream, Message};
@@ -35,12 +35,19 @@ pub fn join(
         )
     })?;
 
+    let game_started = game.phase != GamePhase::Lobby;
+
     let name_taken = game
         .players
         .iter()
         .any(|(_, player)| player.name.to_ascii_lowercase() == name.to_ascii_lowercase());
 
-    if name_taken {
+    if game_started {
+        Err(FailResponse::new(
+            KascreechError::GameNotFound,
+            Some("The game has already started".into()),
+        ))
+    } else if name_taken {
         Err(FailResponse::new(
             KascreechError::NameAlreadyExists,
             Some("The specified name is already taken".into()),
@@ -82,4 +89,14 @@ pub fn join(
 
         Ok(())
     }
+}
+
+pub fn handle_message(
+    stream: &mut AsyncStream,
+    json: Value,
+    state: Arc<AppState>,
+    game_id: String,
+    game_phase: GamePhase,
+) -> Result<(), FailResponse> {
+    Ok(())
 }

@@ -6,7 +6,7 @@ mod player;
 mod types;
 
 use err::{FailResponse, KascreechError};
-use types::{ClientStatus, Game};
+use types::{ClientStatus, Game, GamePhase};
 
 use humphrey::handlers::serve_dir;
 use humphrey::App;
@@ -89,7 +89,21 @@ fn message_handler(
                 )),
             }
         }
-        ClientStatus::Playing(game_id) => Ok(()),
-        ClientStatus::Hosting(game_id) => Ok(()),
+
+        ClientStatus::Playing(game_id) => {
+            let game_phase = get_game_phase(&game_id, &state);
+            player::handle_message(stream, json, state, game_id, game_phase)
+        }
+
+        ClientStatus::Hosting(game_id) => {
+            let game_phase = get_game_phase(&game_id, &state);
+            host::handle_message(stream, json, state, game_id, game_phase)
+        }
     }
+}
+
+fn get_game_phase(game_id: &str, state: &Arc<AppState>) -> GamePhase {
+    let games = state.games.lock().unwrap();
+    let game = games.get(game_id).unwrap();
+    game.phase
 }
