@@ -1,12 +1,13 @@
 use crate::err::{FailResponse, KascreechError};
-use crate::types::{ClientStatus, GamePhase, Player};
-use crate::AppState;
+use crate::types::{ClientStatus, Game, GamePhase, Player};
+use crate::{quiet_assert, AppState};
 
 use humphrey_ws::{AsyncStream, Message};
 
 use humphrey_json::prelude::*;
 use humphrey_json::Value;
 
+use std::net::SocketAddr;
 use std::sync::Arc;
 
 pub fn join(
@@ -59,7 +60,7 @@ pub fn join(
                 name: name.to_string(),
                 points: 0,
                 streak: 0,
-                played: false,
+                played: None,
                 player_round_end: None,
             },
         );
@@ -98,5 +99,50 @@ pub fn handle_message(
     game_id: String,
     game_phase: GamePhase,
 ) -> Result<(), FailResponse> {
-    Ok(())
+    let command = json
+        .get("command")
+        .ok_or_else(FailResponse::none_option)?
+        .as_str()
+        .ok_or_else(FailResponse::none_option)?;
+
+    let mut games = state.games.lock().unwrap();
+    let game = games
+        .get_mut(&game_id)
+        .ok_or_else(FailResponse::none_option)?;
+
+    match game_phase {
+        GamePhase::Question => {
+            quiet_assert(command == "guess")?;
+            submit_guess(stream.peer_addr(), json, game)
+        }
+
+        _ => Err(FailResponse::new(
+            KascreechError::UnrecognisedCommand,
+            Some("Command not valid at this time".into()),
+        )),
+    }
+}
+
+fn submit_guess(player_id: SocketAddr, json: Value, game: &mut Game) -> Result<(), FailResponse> {
+    let player = game
+        .players
+        .get_mut(&player_id)
+        .ok_or_else(FailResponse::none_option)?;
+
+    if player.played.is_some() {
+        Err(FailResponse::new(
+            KascreechError::UnrecognisedCommand,
+            Some("You cannot make two guesses".into()),
+        ))
+    } else {
+        let index = json
+            .get("index")
+            .ok_or_else(FailResponse::none_option)?
+            .as_number()
+            .ok_or_else(FailResponse::none_option)? as usize;
+
+        player.played = Some(index);
+
+        Ok(())
+    }
 }

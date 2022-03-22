@@ -107,3 +107,14 @@ fn get_game_phase(game_id: &str, state: &Arc<AppState>) -> GamePhase {
     let game = games.get(game_id).unwrap();
     game.phase
 }
+
+pub fn quiet_assert(condition: bool) -> Result<(), FailResponse> {
+    if !condition {
+        Err(FailResponse::new(
+            KascreechError::UnrecognisedCommand,
+            Some("Command not valid at this time".into()),
+        ))
+    } else {
+        Ok(())
+    }
+}

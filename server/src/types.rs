@@ -19,6 +19,7 @@ pub struct Game {
     pub phase: GamePhase,
     pub players: HashMap<SocketAddr, Player>,
     pub host: SocketAddr,
+    pub correct_answers: Vec<usize>,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -28,14 +29,16 @@ pub enum GamePhase {
     Leaderboard,
 }
 
+#[derive(Clone)]
 pub struct Player {
     pub name: String,
     pub points: usize,
     pub streak: usize,
-    pub played: bool,
+    pub played: Option<usize>,
     pub player_round_end: Option<PlayerRoundEnd>,
 }
 
+#[derive(Clone)]
 pub struct PlayerRoundEnd {
     pub event: String,
     pub correct: bool,
