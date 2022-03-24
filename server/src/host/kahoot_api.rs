@@ -3,12 +3,12 @@ use humphrey::Client;
 use humphrey_json::prelude::*;
 
 use std::error::Error;
-use std::lazy::SyncOnceCell;
 use std::sync::Mutex;
 
+use crate::host::not_once_cell::NotOnceCell;
 use crate::types::{Answer, Question};
 
-static CLIENT: SyncOnceCell<Mutex<Client>> = SyncOnceCell::new();
+static CLIENT: NotOnceCell<Mutex<Client>> = NotOnceCell::new();
 
 pub struct KahootGame {
     pub title: String,

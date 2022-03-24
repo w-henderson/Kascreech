@@ -1,5 +1,3 @@
-#![feature(once_cell)]
-
 mod err;
 mod host;
 mod player;

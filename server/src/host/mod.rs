@@ -1,4 +1,5 @@
 mod kahoot_api;
+mod not_once_cell;
 
 use humphrey_ws::async_app::AsyncSender;
 use kahoot_api::{generate_id, get_kahoot};
