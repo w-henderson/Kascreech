@@ -61,9 +61,14 @@ dependencies = [
 
 [[package]]
 name = "humphrey"
-version = "0.5.3"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "828bd3a960ca4f7eae66a81d8fcfe9bda3de5065b1fec5565e8a3b6c05a39497"
+checksum = "cb17e982fd09158a5dc454300b7e8ddc4e0e20757421953b725ba163efd23d01"
+dependencies = [
+ "rustls",
+ "rustls-native-certs",
+ "rustls-pemfile",
+]
 
 [[package]]
 name = "humphrey_json"
@@ -97,8 +102,6 @@ dependencies = [
  "humphrey",
  "humphrey_json",
  "humphrey_ws",
- "rustls",
- "rustls-native-certs",
 ]
 
 [[package]]
@@ -115,9 +118,9 @@ checksum = "efaa7b300f3b5fe8eb6bf21ce3895e1751d9665086af2d64b42f19701015ff4f"
 
 [[package]]
 name = "log"
-version = "0.4.14"
+version = "0.4.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "51b9bbe6c47d51fc3e1a9b945965946b4c44142ab8792c50835a980d362c2710"
+checksum = "6389c490849ff5bc16be905ae24bc913a9c8892e19b2341dbc175e14c341c2b8"
 dependencies = [
  "cfg-if",
 ]
@@ -173,7 +176,6 @@ version = "0.20.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4fbfeb8d0ddb84706bc597a5574ab8912817c52a397f819e5b614e2265206921"
 dependencies = [
- "log",
  "ring",
  "sct",
  "webpki",
