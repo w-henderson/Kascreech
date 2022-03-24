@@ -69,3 +69,11 @@ impl<T> NotOnceCell<T> {
         }
     }
 }
+
+impl<T> Drop for NotOnceCell<T> {
+    fn drop(&mut self) {
+        if self.status.load(Ordering::Acquire) == Status::Initialized as u8 {
+            unsafe { (*self.inner.get()).assume_init_drop() }
+        }
+    }
+}
