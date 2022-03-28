@@ -14,14 +14,12 @@ export enum AppPhase {
 }
 
 export enum KascreechError {
-  IoError,
-  UreqError,
-  SerdeError,
-  TungsteniteError,
   FailedRead,
   GameNotFound,
-  NameAlreadyExists,
-  UnrecognisedCommand
+  KahootGameNotFound,
+  UsernameAlreadyExists,
+  InvalidCommand,
+  UnknownError,
 }
 
 interface AppState {
@@ -51,9 +49,9 @@ class App extends React.Component<{}, AppState> {
   error(errorType: string, message: string) {
     let error = stringToError(errorType);
 
-    if (error === KascreechError.UreqError
-      || error === KascreechError.GameNotFound
-      || error === KascreechError.NameAlreadyExists) {
+    if (error === KascreechError.GameNotFound
+      || error === KascreechError.KahootGameNotFound
+      || error === KascreechError.UsernameAlreadyExists) {
       this.setState({
         phase: AppPhase.Initial,
         error,
@@ -112,17 +110,14 @@ class App extends React.Component<{}, AppState> {
   }
 }
 
-function stringToError(str: string): KascreechError | undefined {
+function stringToError(str: string): KascreechError {
   switch (str) {
-    case "IoError": return KascreechError.IoError;
-    case "UreqError": return KascreechError.UreqError;
-    case "SerdeError": return KascreechError.SerdeError;
-    case "TungsteniteError": return KascreechError.TungsteniteError;
     case "FailedRead": return KascreechError.FailedRead;
     case "GameNotFound": return KascreechError.GameNotFound;
-    case "NameAlreadyExists": return KascreechError.NameAlreadyExists;
-    case "UnrecognisedCommand": return KascreechError.UnrecognisedCommand;
-    default: return undefined;
+    case "KahootGameNotFound": return KascreechError.KahootGameNotFound;
+    case "UsernameAlreadyExists": return KascreechError.UsernameAlreadyExists;
+    case "InvalidCommand": return KascreechError.InvalidCommand;
+    default: return KascreechError.UnknownError;
   }
 }
 

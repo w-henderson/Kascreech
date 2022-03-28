@@ -25,7 +25,7 @@ class Home extends React.Component<HomeProps, HomeState> {
   constructor(props: HomeProps) {
     super(props);
 
-    if (this.props.error === KascreechError.UreqError) {
+    if (this.props.error === KascreechError.KahootGameNotFound) {
       this.state = { tab: Tab.Host }
     } else {
       this.state = { tab: Tab.Play }
@@ -67,7 +67,7 @@ class Home extends React.Component<HomeProps, HomeState> {
               <input
                 placeholder="User Name"
                 value={this.props.joinName}
-                className={this.props.error === KascreechError.NameAlreadyExists ? "error" : undefined}
+                className={this.props.error === KascreechError.UsernameAlreadyExists ? "error" : undefined}
                 onChange={(e) => this.props.setState({ joinName: e.target.value, error: undefined })} />
               <input
                 type="submit"
@@ -99,7 +99,7 @@ class Home extends React.Component<HomeProps, HomeState> {
               <input
                 placeholder="Kahoot ID"
                 value={this.props.hostID}
-                className={this.props.error === KascreechError.UreqError ? "error" : undefined}
+                className={this.props.error === KascreechError.KahootGameNotFound ? "error" : undefined}
                 onChange={(e) => this.props.setState({ hostID: e.target.value, error: undefined })} />
               <input
                 type="submit"
