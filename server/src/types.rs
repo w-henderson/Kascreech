@@ -20,6 +20,7 @@ pub struct Game {
     pub players: HashMap<SocketAddr, Player>,
     pub host: SocketAddr,
     pub correct_answers: Vec<usize>,
+    pub question_start_time: u128,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -35,6 +36,7 @@ pub struct Player {
     pub points: usize,
     pub streak: usize,
     pub played: Option<usize>,
+    pub answer_time: u128,
     pub player_round_end: Option<PlayerRoundEnd>,
 }
 

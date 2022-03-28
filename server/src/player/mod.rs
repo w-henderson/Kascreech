@@ -9,6 +9,7 @@ use humphrey_json::Value;
 
 use std::net::SocketAddr;
 use std::sync::Arc;
+use std::time::UNIX_EPOCH;
 
 pub fn join(
     stream: &mut AsyncStream,
@@ -61,6 +62,7 @@ pub fn join(
                 points: 0,
                 streak: 0,
                 played: None,
+                answer_time: 0,
                 player_round_end: None,
             },
         );
@@ -142,6 +144,7 @@ fn submit_guess(player_id: SocketAddr, json: Value, game: &mut Game) -> Result<(
             .ok_or_else(FailResponse::none_option)? as usize;
 
         player.played = Some(index);
+        player.answer_time = UNIX_EPOCH.elapsed().unwrap().as_millis();
 
         Ok(())
     }

@@ -1,5 +1,6 @@
 mod kahoot_api;
 mod not_once_cell;
+mod points;
 
 use humphrey_ws::async_app::AsyncSender;
 use kahoot_api::{generate_id, get_kahoot};
@@ -15,6 +16,7 @@ use humphrey_json::Value;
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
+use std::time::UNIX_EPOCH;
 
 pub fn host(
     stream: &mut AsyncStream,
@@ -40,6 +42,7 @@ pub fn host(
         players: HashMap::new(),
         host: stream.peer_addr(),
         correct_answers: Vec::new(),
+        question_start_time: 0,
     };
 
     let mut games = state.games.lock().unwrap();
@@ -118,6 +121,7 @@ fn question_command(
 
     game.phase = GamePhase::Question;
     game.correct_answers = correct_answers;
+    game.question_start_time = UNIX_EPOCH.elapsed().unwrap().as_millis();
 
     let number_of_answers = question.answers.len();
 
@@ -148,12 +152,21 @@ fn answer_command(
 ) -> Result<(), FailResponse> {
     game.phase = GamePhase::Leaderboard;
 
+    let question_duration = UNIX_EPOCH.elapsed().unwrap().as_millis() - game.question_start_time;
+
     for player in game.players.values_mut() {
         let correct = player
             .played
             .map(|guess| game.correct_answers.contains(&guess))
             .unwrap_or(false);
-        let points_this_round = correct as usize * 800;
+
+        let points_this_round = points::calculate_points(
+            game.question_start_time,
+            player.answer_time,
+            question_duration,
+            correct,
+            player.streak,
+        );
 
         let streak = if correct { player.streak + 1 } else { 0 };
 
