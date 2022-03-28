@@ -1,5 +1,5 @@
 use std::cell::UnsafeCell;
-use std::mem::MaybeUninit;
+use std::mem::{replace, MaybeUninit};
 use std::sync::atomic::{AtomicU8, Ordering};
 
 pub struct NotOnceCell<T> {
@@ -73,7 +73,7 @@ impl<T> NotOnceCell<T> {
 impl<T> Drop for NotOnceCell<T> {
     fn drop(&mut self) {
         if self.status.load(Ordering::Acquire) == Status::Initialized as u8 {
-            unsafe { (*self.inner.get()).assume_init_drop() }
+            unsafe { drop(replace(&mut *self.inner.get(), MaybeUninit::uninit()).assume_init()) }
         }
     }
 }
