@@ -61,9 +61,9 @@ dependencies = [
 
 [[package]]
 name = "humphrey"
-version = "0.5.4"
+version = "0.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb17e982fd09158a5dc454300b7e8ddc4e0e20757421953b725ba163efd23d01"
+checksum = "5749e49b5d583ed315e2b371a8c0db7c8cad02a27306b11473c1e0da5d0ae415"
 dependencies = [
  "rustls",
  "rustls-native-certs",

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-humphrey = { version = "^0.5.4", features = ["tls"] }
+humphrey = { version = "^0.5.5", features = ["tls"] }
 humphrey_ws = "^0.3.2"
 humphrey_json = "^0.1.0"
 getrandom = "0.2"

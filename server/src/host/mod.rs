@@ -27,12 +27,8 @@ pub fn host(
         .as_str()
         .ok_or_else(FailResponse::none_option)?;
 
-    let kahoot = get_kahoot(kahoot_id).map_err(|_| {
-        FailResponse::new(
-            KascreechError::KahootGameNotFound,
-            Some("Kahoot game could not be loaded".into()),
-        )
-    })?;
+    let kahoot = get_kahoot(kahoot_id)
+        .map_err(|e| FailResponse::new(KascreechError::KahootGameNotFound, Some(e.to_string())))?;
 
     let id = generate_id();
     let len = kahoot.questions.len();
