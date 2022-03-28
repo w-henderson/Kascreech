@@ -49,7 +49,18 @@ fn connect_handler(stream: AsyncStream, state: Arc<AppState>) {
     clients.insert(stream.peer_addr(), ClientStatus::Loading);
 }
 
-fn disconnect_handler(_: AsyncStream, _: Arc<AppState>) {}
+fn disconnect_handler(stream: AsyncStream, state: Arc<AppState>) {
+    let status = {
+        let mut clients = state.clients.write().unwrap();
+        clients.remove(&stream.peer_addr()).unwrap()
+    };
+
+    if let ClientStatus::Playing(game_id) = status {
+        let mut games = state.games.lock().unwrap();
+        let game = games.get_mut(&game_id).unwrap();
+        game.players.remove(&stream.peer_addr());
+    }
+}
 
 fn message_handler_internal(mut stream: AsyncStream, message: Message, state: Arc<AppState>) {
     match message_handler(&mut stream, message, state) {

@@ -90,8 +90,15 @@ pub fn handle_message(
         }
 
         GamePhase::Question => {
+            let endgame = game.questions.len() == 0;
             quiet_assert(command == "leaderboard")?;
-            answer_command(stream, game, global_sender, game.questions.len() == 0)
+            answer_command(stream, game, global_sender, endgame)?;
+
+            if endgame {
+                games.remove(&game_id);
+            }
+
+            Ok(())
         }
 
         GamePhase::Leaderboard => {
