@@ -50,7 +50,7 @@ pub fn join(
         ))
     } else if name_taken {
         Err(FailResponse::new(
-            KascreechError::NameAlreadyExists,
+            KascreechError::UsernameAlreadyExists,
             Some("The specified name is already taken".into()),
         ))
     } else {
@@ -117,7 +117,7 @@ pub fn handle_message(
         }
 
         _ => Err(FailResponse::new(
-            KascreechError::UnrecognisedCommand,
+            KascreechError::InvalidCommand,
             Some("Command not valid at this time".into()),
         )),
     }
@@ -131,7 +131,7 @@ fn submit_guess(player_id: SocketAddr, json: Value, game: &mut Game) -> Result<(
 
     if player.played.is_some() {
         Err(FailResponse::new(
-            KascreechError::UnrecognisedCommand,
+            KascreechError::InvalidCommand,
             Some("You cannot make two guesses".into()),
         ))
     } else {

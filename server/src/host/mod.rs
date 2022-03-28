@@ -29,7 +29,7 @@ pub fn host(
 
     let kahoot = get_kahoot(kahoot_id).map_err(|_| {
         FailResponse::new(
-            KascreechError::GameNotFound,
+            KascreechError::KahootGameNotFound,
             Some("Kahoot game could not be loaded".into()),
         )
     })?;

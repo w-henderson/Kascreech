@@ -11,8 +11,10 @@ pub struct FailResponse {
 pub enum KascreechError {
     FailedRead,
     GameNotFound,
-    NameAlreadyExists,
-    UnrecognisedCommand,
+    KahootGameNotFound,
+    UsernameAlreadyExists,
+    InvalidCommand,
+    UnknownError,
 }
 
 impl FailResponse {
@@ -28,7 +30,7 @@ impl FailResponse {
         Self {
             success: false,
             error_type: KascreechError::FailedRead,
-            error_message: Some("An option was none".into()),
+            error_message: Some("A parameter was missing".into()),
         }
     }
 }
@@ -44,8 +46,10 @@ impl IntoJson for KascreechError {
         match self {
             KascreechError::FailedRead => json!("FailedRead"),
             KascreechError::GameNotFound => json!("GameNotFound"),
-            KascreechError::NameAlreadyExists => json!("NameAlreadyExists"),
-            KascreechError::UnrecognisedCommand => json!("UnrecognisedCommand"),
+            KascreechError::KahootGameNotFound => json!("KahootGameNotFound"),
+            KascreechError::UsernameAlreadyExists => json!("UsernameAlreadyExists"),
+            KascreechError::InvalidCommand => json!("InvalidCommand"),
+            KascreechError::UnknownError => json!("UnknownError"),
         }
     }
 }
