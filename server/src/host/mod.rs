@@ -2,13 +2,15 @@ mod kahoot_api;
 mod not_once_cell;
 mod points;
 
-use humphrey_ws::async_app::AsyncSender;
 use kahoot_api::{generate_id, get_kahoot};
 
 use crate::err::{FailResponse, KascreechError};
 use crate::types::{ClientStatus, Game, GamePhase, Player, PlayerRoundEnd};
 use crate::{quiet_assert, AppState};
 
+use humphrey::monitor::event::{Event, EventType};
+
+use humphrey_ws::async_app::AsyncSender;
 use humphrey_ws::{AsyncStream, Message};
 
 use humphrey_json::prelude::*;
@@ -53,12 +55,20 @@ pub fn host(
 
     let response = json!({
         "success": true,
-        "gameId": id,
+        "gameId": (id.clone()),
         "gameName": (kahoot.title),
         "questionCount": len
     });
 
     stream.send(Message::new(response.serialize()));
+
+    let log = state.event_tx.lock().unwrap();
+    log.send(
+        Event::new(EventType::RequestServedSuccess)
+            .with_peer(stream.peer_addr())
+            .with_info(format!("Kascreech: game hosted with ID {}", id)),
+    )
+    .ok();
 
     Ok(())
 }

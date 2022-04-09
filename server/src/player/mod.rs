@@ -2,6 +2,8 @@ use crate::err::{FailResponse, KascreechError};
 use crate::types::{ClientStatus, Game, GamePhase, Player};
 use crate::{quiet_assert, AppState};
 
+use humphrey::monitor::event::{Event, EventType};
+
 use humphrey_ws::{AsyncStream, Message};
 
 use humphrey_json::prelude::*;
@@ -89,6 +91,14 @@ pub fn join(
         });
 
         sender_ref.send(host, Message::new(host_message.serialize()));
+
+        let log = state.event_tx.lock().unwrap();
+        log.send(
+            Event::new(EventType::RequestServedSuccess)
+                .with_peer(stream.peer_addr())
+                .with_info(format!("Kascreech: game joined with ID {}", id)),
+        )
+        .ok();
 
         Ok(())
     }

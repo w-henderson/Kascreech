@@ -1,5 +1,6 @@
 mod err;
 mod host;
+mod mon;
 mod player;
 mod types;
 
@@ -7,6 +8,8 @@ use err::{FailResponse, KascreechError};
 use types::{ClientStatus, Game, GamePhase};
 
 use humphrey::handlers::serve_dir;
+use humphrey::monitor::event::{Event, EventLevel, EventType};
+use humphrey::monitor::MonitorConfig;
 use humphrey::App;
 
 use humphrey_ws::async_app::AsyncSender;
@@ -15,31 +18,56 @@ use humphrey_ws::{async_websocket_handler, AsyncStream, AsyncWebsocketApp, Messa
 use humphrey_json::Value;
 
 use std::collections::HashMap;
+use std::env::args;
 use std::net::SocketAddr;
+use std::sync::mpsc::{channel, Sender};
 use std::sync::{Arc, Mutex, RwLock};
 use std::thread::spawn;
 
-#[derive(Default)]
 pub struct AppState {
     clients: RwLock<HashMap<SocketAddr, ClientStatus>>,
     games: Mutex<HashMap<String, Game>>,
     global_sender: Mutex<Option<AsyncSender>>,
+    event_tx: Mutex<Sender<Event>>,
 }
 
 fn main() {
-    let ws_app: AsyncWebsocketApp<AppState> = AsyncWebsocketApp::new_unlinked()
-        .with_connect_handler(connect_handler)
-        .with_disconnect_handler(disconnect_handler)
-        .with_message_handler(message_handler_internal);
+    let path: &'static str = Box::leak(Box::new(
+        args()
+            .nth(2)
+            .unwrap_or_else(|| "../client/build".to_string()),
+    ));
+
+    let (event_tx, event_rx) = channel();
+
+    let ws_app: AsyncWebsocketApp<AppState> = AsyncWebsocketApp::new_unlinked_with_config(
+        AppState {
+            clients: Default::default(),
+            games: Default::default(),
+            global_sender: Default::default(),
+            event_tx: Mutex::new(event_tx.clone()),
+        },
+        32,
+    )
+    .with_connect_handler(connect_handler)
+    .with_disconnect_handler(disconnect_handler)
+    .with_message_handler(message_handler_internal);
 
     let sender = ws_app.sender();
     *ws_app.get_state().global_sender.lock().unwrap() = Some(sender);
 
     let humphrey_app: App<()> = App::new()
-        .with_path_aware_route("/*", serve_dir("../client/build"))
-        .with_websocket_route("/", async_websocket_handler(ws_app.connect_hook().unwrap()));
+        .with_path_aware_route("/*", serve_dir(path))
+        .with_websocket_route("/", async_websocket_handler(ws_app.connect_hook().unwrap()))
+        .with_monitor(MonitorConfig::new(event_tx).with_subscription_to(EventLevel::Info));
 
-    spawn(move || humphrey_app.run("0.0.0.0:80").unwrap());
+    spawn(move || {
+        humphrey_app
+            .run(args().nth(1).unwrap_or_else(|| "0.0.0.0:80".to_string()))
+            .unwrap()
+    });
+
+    spawn(move || mon::monitor(event_rx));
 
     ws_app.run();
 }
@@ -47,6 +75,14 @@ fn main() {
 fn connect_handler(stream: AsyncStream, state: Arc<AppState>) {
     let mut clients = state.clients.write().unwrap();
     clients.insert(stream.peer_addr(), ClientStatus::Loading);
+
+    let log = state.event_tx.lock().unwrap();
+    log.send(
+        Event::new(EventType::RequestServedSuccess)
+            .with_peer(stream.peer_addr())
+            .with_info("Kascreech: client connected"),
+    )
+    .ok();
 }
 
 fn disconnect_handler(stream: AsyncStream, state: Arc<AppState>) {
@@ -60,12 +96,33 @@ fn disconnect_handler(stream: AsyncStream, state: Arc<AppState>) {
         let game = games.get_mut(&game_id).unwrap();
         game.players.remove(&stream.peer_addr());
     }
+
+    let log = state.event_tx.lock().unwrap();
+    log.send(
+        Event::new(EventType::RequestServedSuccess)
+            .with_peer(stream.peer_addr())
+            .with_info("Kascreech: client disconnected"),
+    )
+    .ok();
 }
 
 fn message_handler_internal(mut stream: AsyncStream, message: Message, state: Arc<AppState>) {
-    match message_handler(&mut stream, message, state) {
+    match message_handler(&mut stream, message, state.clone()) {
         Ok(_) => (),
-        Err(e) => stream.send(Message::new(humphrey_json::to_string(&e))),
+        Err(e) => {
+            stream.send(Message::new(humphrey_json::to_string(&e)));
+
+            let log = state.event_tx.lock().unwrap();
+            log.send(
+                Event::new(EventType::RequestServedError)
+                    .with_peer(stream.peer_addr())
+                    .with_info(format!(
+                        "Error: {}",
+                        humphrey_json::to_string(&e.error_type)
+                    )),
+            )
+            .ok();
+        }
     }
 }
 
