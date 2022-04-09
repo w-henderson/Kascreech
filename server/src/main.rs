@@ -1,168 +1,129 @@
-#![warn(clippy::nursery, clippy::pedantic)]
-
-mod command;
 mod err;
-mod game;
-mod player;
-
 mod host;
-mod join;
+mod player;
+mod types;
 
-use command::Command;
-use err::{FailResponse, KascreechError, KascreechResult};
-use game::{Game, Senders};
+use err::{FailResponse, KascreechError};
+use types::{ClientStatus, Game, GamePhase};
 
-use simple_log::LogConfigBuilder;
+use humphrey::handlers::serve_dir;
+use humphrey::App;
 
-use tokio::{
-    io::{self, AsyncReadExt, AsyncWriteExt, BufReader},
-    net::{TcpListener, TcpStream},
-};
-use tokio_tungstenite::{
-    tungstenite::{
-        protocol::{Role, WebSocketConfig},
-        Message,
-    },
-    WebSocketStream,
-};
+use humphrey_ws::async_app::AsyncSender;
+use humphrey_ws::{async_websocket_handler, AsyncStream, AsyncWebsocketApp, Message};
 
-use dashmap::DashMap;
+use humphrey_json::Value;
 
-use futures::{
-    stream::{SplitSink, SplitStream},
-    SinkExt, StreamExt,
-};
+use std::collections::HashMap;
+use std::net::SocketAddr;
+use std::sync::{Arc, Mutex, RwLock};
+use std::thread::spawn;
 
-use once_cell::sync::Lazy;
-
-type Write = SplitSink<WebSocketStream<TcpStream>, Message>;
-type Read = SplitStream<WebSocketStream<TcpStream>>;
-
-static GAMES: Lazy<DashMap<String, Game>> = Lazy::new(DashMap::default);
-static HOST_SENDERS: Lazy<DashMap<String, Senders>> = Lazy::new(DashMap::default);
-
-#[tokio::main]
-async fn main() -> Result<(), std::io::Error> {
-    let log_config = LogConfigBuilder::builder()
-        .path("log.log")
-        .output_file()
-        .level("info")
-        .build();
-
-    simple_log::new(log_config).unwrap();
-
-    let addr = std::env::args()
-        .nth(1)
-        .unwrap_or_else(|| "0.0.0.0:80".to_string());
-
-    let try_socket = TcpListener::bind(&addr).await;
-    let listener = try_socket.expect("Failed to bind");
-
-    while let Ok((stream, _)) = listener.accept().await {
-        tokio::spawn(accept_connection(stream));
-    }
-
-    Ok(())
+#[derive(Default)]
+pub struct AppState {
+    clients: RwLock<HashMap<SocketAddr, ClientStatus>>,
+    games: Mutex<HashMap<String, Game>>,
+    global_sender: Mutex<Option<AsyncSender>>,
 }
 
-const WEBSOCKET_CONFIG: WebSocketConfig = WebSocketConfig {
-    max_send_queue: Some(5),
-    max_message_size: Some(1 << 20),
-    max_frame_size: Some(16 << 20),
-    accept_unmasked_frames: false,
-};
+fn main() {
+    let ws_app: AsyncWebsocketApp<AppState> = AsyncWebsocketApp::new_unlinked()
+        .with_connect_handler(connect_handler)
+        .with_disconnect_handler(disconnect_handler)
+        .with_message_handler(message_handler_internal);
 
-async fn accept_connection(stream: TcpStream) {
-    if let Err(e) = accept_connection_internal(stream).await {
-        log::error!("{}", e);
+    let sender = ws_app.sender();
+    *ws_app.get_state().global_sender.lock().unwrap() = Some(sender);
+
+    let humphrey_app: App<()> = App::new()
+        .with_path_aware_route("/*", serve_dir("../client/build"))
+        .with_websocket_route("/", async_websocket_handler(ws_app.connect_hook().unwrap()));
+
+    spawn(move || humphrey_app.run("0.0.0.0:80").unwrap());
+
+    ws_app.run();
+}
+
+fn connect_handler(stream: AsyncStream, state: Arc<AppState>) {
+    let mut clients = state.clients.write().unwrap();
+    clients.insert(stream.peer_addr(), ClientStatus::Loading);
+}
+
+fn disconnect_handler(stream: AsyncStream, state: Arc<AppState>) {
+    let status = {
+        let mut clients = state.clients.write().unwrap();
+        clients.remove(&stream.peer_addr()).unwrap()
+    };
+
+    if let ClientStatus::Playing(game_id) = status {
+        let mut games = state.games.lock().unwrap();
+        let game = games.get_mut(&game_id).unwrap();
+        game.players.remove(&stream.peer_addr());
     }
 }
 
-async fn accept_connection_internal(mut stream: TcpStream) -> KascreechResult<()> {
-    let mut buf = [0; 1000];
-    let mut buf_reader = BufReader::new(&mut stream);
+fn message_handler_internal(mut stream: AsyncStream, message: Message, state: Arc<AppState>) {
+    match message_handler(&mut stream, message, state) {
+        Ok(_) => (),
+        Err(e) => stream.send(Message::new(humphrey_json::to_string(&e))),
+    }
+}
 
-    let read = buf_reader.read(&mut buf).await.unwrap();
+fn message_handler(
+    stream: &mut AsyncStream,
+    message: Message,
+    state: Arc<AppState>,
+) -> Result<(), FailResponse> {
+    let status = {
+        let clients = state.clients.read().unwrap();
+        clients.get(&stream.peer_addr()).unwrap().clone()
+    };
 
-    let mut headers = [httparse::EMPTY_HEADER; 32];
-    let mut req = httparse::Request::new(&mut headers);
+    let json: Value = humphrey_json::from_str(message.text().unwrap())?;
 
-    req.parse(&buf).unwrap();
+    match status {
+        ClientStatus::Loading => {
+            let command = json
+                .get("command")
+                .ok_or_else(FailResponse::none_option)?
+                .as_str()
+                .ok_or_else(FailResponse::none_option)?;
 
-    // If the stream is a websocket stream
-    if let Some(header) = req.headers.iter().find(|h| h.name == "Sec-WebSocket-Key") {
-        let mut key = std::str::from_utf8(header.value).unwrap().to_string();
-        key.push_str("258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
-        let sha = sha1::Sha1::from(key);
-
-        let hash = sha.digest().bytes();
-        let key = base64::encode(hash);
-
-        let response = format!(
-                "HTTP/1.1 101 Switching Protocols\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Accept: {}\r\n\r\n",
-                key
-            );
-
-        stream.write(response.as_bytes()).await.unwrap();
-
-        stream.flush().await.unwrap();
-
-        let ws_stream =
-            WebSocketStream::from_raw_socket(stream, Role::Server, Some(WEBSOCKET_CONFIG)).await;
-
-        let (mut write, mut read) = ws_stream.split();
-
-        let message = read
-            .next()
-            .await
-            .ok_or(FailResponse::new(KascreechError::FailedRead, None))??;
-
-        let s = message.to_text()?;
-
-        let command = serde_json::from_str::<Command>(s)?;
-
-        let err = match command.command {
-            "host" => host::host_command(s, &mut write, &mut read).await,
-            "join" => join::join_command(s, &mut write, &mut read).await,
-            _ => Err(FailResponse::new(
-                KascreechError::UnrecognisedCommand,
-                Some(command.command.to_string()),
-            )),
-        };
-
-        if let Err(e) = err {
-            log::error!("{}", e);
-
-            write
-                .send(Message::Text(serde_json::to_string(&e).unwrap()))
-                .await
-                .unwrap();
+            match command {
+                "join" => player::join(stream, json, state),
+                "host" => host::host(stream, json, state),
+                _ => Err(FailResponse::new(
+                    KascreechError::InvalidCommand,
+                    Some("Only acceptable commands in this context are `join` and `host`".into()),
+                )),
+            }
         }
-        // Proxy the stream to localhost:8000
-    } else {
-        proxy(stream, &buf[..read]).await;
-    }
 
-    Ok(())
+        ClientStatus::Playing(game_id) => {
+            let game_phase = get_game_phase(&game_id, &state);
+            player::handle_message(stream, json, state, game_id, game_phase)
+        }
+
+        ClientStatus::Hosting(game_id) => {
+            let game_phase = get_game_phase(&game_id, &state);
+            host::handle_message(stream, json, state, game_id, game_phase)
+        }
+    }
 }
 
-async fn proxy(mut inbound: TcpStream, already_read: &[u8]) {
-    let mut outbound = TcpStream::connect("localhost:8000").await.unwrap();
+fn get_game_phase(game_id: &str, state: &Arc<AppState>) -> GamePhase {
+    let games = state.games.lock().unwrap();
+    let game = games.get(game_id).unwrap();
+    game.phase
+}
 
-    let (mut ri, mut wi) = inbound.split();
-    let (mut ro, mut wo) = outbound.split();
-
-    wo.write_all(already_read).await.unwrap();
-
-    let client_to_server = async {
-        io::copy(&mut ri, &mut wo).await?;
-        wo.shutdown().await
-    };
-
-    let server_to_client = async {
-        io::copy(&mut ro, &mut wi).await?;
-        wi.shutdown().await
-    };
-
-    tokio::try_join!(client_to_server, server_to_client).unwrap();
+pub fn quiet_assert(condition: bool) -> Result<(), FailResponse> {
+    if !condition {
+        Err(FailResponse::new(
+            KascreechError::InvalidCommand,
+            Some("Command not valid at this time".into()),
+        ))
+    } else {
+        Ok(())
+    }
 }

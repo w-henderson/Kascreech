@@ -1,26 +1,10 @@
 [package]
 name = "kascreech"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-tokio = { version = "^1.8", features = ["full"] }
-tokio-tungstenite = "*"
-tokio-stream = "*"
-
-httparse = { version = "^1.4", default-features = false }
-sha1 = { version = "^0.6", default-features = false }
-base64 = { version = "^0.13", default-features = false }
-
-ureq = { version = "^2.1", features = ["json"] }
-
-serde = { version = "^1", features = ["derive", "rc"] }
-serde_json = "*"
-
-dashmap = "^4.0"
-fastrand = "^1.4"
-once_cell = "^1.8"
-futures = "^0.3"
-
-log = "^0.4"
-simple-log = "*"
+humphrey = { version = "^0.5.5", features = ["tls"] }
+humphrey_ws = "^0.3.2"
+humphrey_json = "^0.1.0"
+getrandom = "0.2"
