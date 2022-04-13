@@ -1,5 +1,4 @@
 import React from 'react';
-import { SERVER_ADDR } from '../App';
 import '../styles/Host.scss';
 
 import Lobby from "./Lobby";
@@ -55,7 +54,10 @@ class Host extends React.Component<HostProps, HostState> {
   }
 
   componentDidMount() {
-    this.websocket = new WebSocket(SERVER_ADDR || "");
+    let websocketAddr = (window.location.protocol === "https:" ? "wss" : "ws")
+      + `://${window.location.host}`;
+
+    this.websocket = new WebSocket(websocketAddr);
     this.websocket.onmessage = this.wsHandler.bind(this);
     this.websocket.onopen = () => {
       this.websocket?.send(JSON.stringify({

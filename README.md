@@ -17,11 +17,11 @@ To select a quiz to play, visit [Kahoot's discover page](https://create.kahoot.i
 - NPM and Node
 - This repository
 
-Make sure you've set the `REACT_APP_WS_ADDR` environment variable in `client/.env` to wherever you'll be hosting the server, whether that be `ws://localhost` or another IP or address. Ensure the front-end dependencies are installed by running `npm i` in the client directory.
+Ensure the front-end dependencies are installed by running `npm i` in the client directory.
 
 ### Running the Development Server
 1. Start the front-end by running `npm start` in the client directory.
-2. Start the server by running `cargo run` in the server directory. You can pass the address to bind it to as an argument, for example `cargo run -- 0.0.0.0:8000` to run on port 8000. Make sure this is reflected in the client environment variables.
+2. Start the server by running `cargo run` in the server directory. You can pass the address to bind it to as an argument, for example `cargo run -- 0.0.0.0:8000` to run on port 8000.
 
 ### Deploying to Production
 1. Build the React app for production by running `npm run build` in the client directory.

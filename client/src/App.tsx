@@ -5,8 +5,6 @@ import Home from './Home';
 import Host from './host/Host';
 import Player from './player/Player';
 
-export const SERVER_ADDR = process.env.REACT_APP_WS_ADDR;
-
 export enum AppPhase {
   Initial,
   Host,
