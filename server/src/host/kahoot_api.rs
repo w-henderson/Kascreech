@@ -46,6 +46,10 @@ json_map! {
 }
 
 pub fn get_kahoot(id: &str) -> Result<KahootGame, Box<dyn Error>> {
+    if id.is_empty() {
+        return Err("No Kahoot ID provided".into());
+    }
+
     let mut client = CLIENT.get_or_init(|| Mutex::new(Client::new())).lock()?;
     let response = client
         .get(format!("https://play.kahoot.it/rest/kahoots/{}", id))?
