@@ -12,3 +12,14 @@ interface LeaderboardEntry {
   points: number,
   streak: number
 }
+
+interface QuizEntry {
+  id: string,
+  name: string,
+  author: string,
+  description: string,
+  questions: number,
+  plays: number,
+  image?: string,
+  kahoot: boolean
+}
