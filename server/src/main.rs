@@ -55,7 +55,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         Database::new("db.jdb")?
             .with_compaction()?
             .with_index("name")?
-            .with_index("author")?,
+            .with_index("author")?
+            .with_index("featured")?,
     ));
 
     let ws_app: AsyncWebsocketApp<AppState> = AsyncWebsocketApp::new_unlinked_with_config(
@@ -78,6 +79,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let humphrey_app: App<HumphreyAppState> =
         App::new_with_config(32, HumphreyAppState { database: db })
             .with_route("/api/v1/import", api::import)
+            .with_route("/api/v1/featured", api::featured)
             .with_path_aware_route("/*", serve_dir(path))
             .with_websocket_route("/", async_websocket_handler(ws_app.connect_hook().unwrap()))
             .with_monitor(MonitorConfig::new(event_tx).with_subscription_to(EventLevel::Info));

@@ -15,6 +15,7 @@ pub struct DatabaseGame {
     pub questions: Vec<DatabaseQuestion>,
     pub plays: usize,
     pub kahoot: bool,
+    pub featured: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -39,7 +40,8 @@ json_map! {
     image => "image",
     questions => "questions",
     plays => "plays",
-    kahoot => "kahoot"
+    kahoot => "kahoot",
+    featured => "featured"
 }
 
 json_map! {

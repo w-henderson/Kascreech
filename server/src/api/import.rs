@@ -116,5 +116,6 @@ fn get_kahoot(id: &str) -> Result<DatabaseGame, Box<dyn Error>> {
         questions: game.questions,
         plays: 0,
         kahoot: true,
+        featured: false,
     })
 }
