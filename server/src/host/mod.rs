@@ -2,7 +2,7 @@ mod kahoot_api;
 mod not_once_cell;
 mod points;
 
-use kahoot_api::{generate_id, get_kahoot};
+pub use kahoot_api::import;
 
 use crate::err::{FailResponse, KascreechError};
 use crate::types::{ClientStatus, Game, GamePhase, Player, PlayerRoundEnd};
@@ -16,7 +16,6 @@ use humphrey_ws::{AsyncStream, Message};
 use humphrey_json::prelude::*;
 use humphrey_json::Value;
 
-use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::UNIX_EPOCH;
 
@@ -25,7 +24,9 @@ pub fn host(
     json: Value,
     state: Arc<AppState>,
 ) -> Result<(), FailResponse> {
-    let kahoot_id = json
+    // todo
+
+    let game_id = json
         .get("id")
         .ok_or_else(FailResponse::none_option)?
         .as_str()
@@ -34,18 +35,8 @@ pub fn host(
     let kahoot = get_kahoot(kahoot_id)
         .map_err(|e| FailResponse::new(KascreechError::KahootGameNotFound, Some(e.to_string())))?;
 
-    let id = generate_id();
-    let len = kahoot.questions.len();
-
-    let game = Game {
-        id: id.clone(),
-        questions: kahoot_api::kahoot_questions_to_normal_questions(kahoot.questions).into_iter(),
-        phase: GamePhase::Lobby,
-        players: HashMap::new(),
-        host: stream.peer_addr(),
-        correct_answers: Vec::new(),
-        question_start_time: 0,
-    };
+    let game = kahoot.load(stream.peer_addr());
+    let id = game.id.clone();
 
     let mut games = state.games.lock().unwrap();
     let mut clients = state.clients.write().unwrap();
@@ -56,8 +47,8 @@ pub fn host(
     let response = json!({
         "success": true,
         "gameId": (id.clone()),
-        "gameName": (kahoot.title),
-        "questionCount": len
+        "gameName": (kahoot.name),
+        "questionCount": (kahoot.questions.len())
     });
 
     stream.send(Message::new(response.serialize()));

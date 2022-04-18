@@ -1,9 +1,11 @@
+mod database;
 mod err;
 mod host;
 mod mon;
 mod player;
 mod types;
 
+use database::DatabaseGame;
 use err::{FailResponse, KascreechError};
 use types::{ClientStatus, Game, GamePhase};
 
@@ -17,8 +19,11 @@ use humphrey_ws::{async_websocket_handler, AsyncStream, AsyncWebsocketApp, Messa
 
 use humphrey_json::Value;
 
+use jasondb::Database;
+
 use std::collections::HashMap;
 use std::env::args;
+use std::error::Error;
 use std::net::SocketAddr;
 use std::sync::mpsc::{channel, Sender};
 use std::sync::{Arc, Mutex, RwLock};
@@ -27,11 +32,12 @@ use std::thread::spawn;
 pub struct AppState {
     clients: RwLock<HashMap<SocketAddr, ClientStatus>>,
     games: Mutex<HashMap<String, Game>>,
+    database: Mutex<Database<DatabaseGame>>,
     global_sender: Mutex<Option<AsyncSender>>,
     event_tx: Mutex<Sender<Event>>,
 }
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     let path: &'static str = Box::leak(Box::new(
         args()
             .nth(2)
@@ -40,10 +46,13 @@ fn main() {
 
     let (event_tx, event_rx) = channel();
 
+    let db: Database<DatabaseGame> = Database::new("db.jdb")?;
+
     let ws_app: AsyncWebsocketApp<AppState> = AsyncWebsocketApp::new_unlinked_with_config(
         AppState {
             clients: Default::default(),
             games: Default::default(),
+            database: Mutex::new(db),
             global_sender: Default::default(),
             event_tx: Mutex::new(event_tx.clone()),
         },
@@ -70,6 +79,8 @@ fn main() {
     spawn(move || mon::monitor(event_rx));
 
     ws_app.run();
+
+    Ok(())
 }
 
 fn connect_handler(stream: AsyncStream, state: Arc<AppState>) {
