@@ -38,6 +38,11 @@ class Home extends React.Component<HomeProps, HomeState> {
   }
 
   switchTab(tab: Tab) {
+    if (tab === Tab.Host && (window.innerWidth < 1100 || window.innerHeight < 780)) {
+      alert("The window is too small to host a Kahoot game. Please use a computer or rotate your tablet to landscape mode.");
+      return;
+    }
+
     this.setState({ tab });
     this.props.setState({ error: undefined });
   }
@@ -84,7 +89,11 @@ class Home extends React.Component<HomeProps, HomeState> {
 
     return (
       <div className="Home">
-        <img src={logo} alt="Kascreech logo" className="logo" />
+        <img
+          src={logo}
+          alt="Kascreech logo"
+          className="logo"
+          onClick={() => this.setState({ tab: Tab.Play })} />
 
         <div className={this.state.tab === Tab.Play ? "form regular" : "form library"}>
           {inner}

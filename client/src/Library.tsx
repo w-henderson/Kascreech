@@ -3,6 +3,7 @@ import './styles/Library.scss';
 
 import Card from './library/Card';
 import FeaturedCard from './library/FeaturedCard';
+import LobbyLoading from './LobbyLoading';
 
 interface LibraryProps {
   close: () => void,
@@ -13,6 +14,7 @@ interface LibraryProps {
 }
 
 interface LibraryState {
+  loaded: boolean,
   featured: QuizEntry[],
   quizzes: QuizEntry[],
 }
@@ -22,6 +24,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     super(props);
 
     this.state = {
+      loaded: false,
       featured: [
         {
           id: "1",
@@ -89,31 +92,41 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     }
   }
 
+  componentDidMount() {
+    if (!this.state.loaded) {
+      setTimeout(() => this.setState({ loaded: true }), 500);
+    }
+  }
+
   render() {
-    return (
-      <div>
-        <div className="header">
-          <div>Browse Kascreeches</div>
-          <input type="search" placeholder="Name or author" />
-        </div>
+    if (this.state.loaded) {
+      return (
+        <div className="Library">
+          <div className="header">
+            <div>Browse Kascreeches</div>
+            <input type="search" placeholder="Name or author" />
+          </div>
 
-        <div className="featured">
-          <div>Featured</div>
+          <div className="featured">
+            <div>Featured</div>
 
-          <div>
-            {this.state.featured.map(quiz => <FeaturedCard quiz={quiz} key={quiz.id} />)}
+            <div>
+              {this.state.featured.map(quiz => <FeaturedCard quiz={quiz} key={quiz.id} />)}
+            </div>
+          </div>
+
+          <div className="all">
+            <div>Browse All</div>
+
+            <div>
+              {this.state.quizzes.map(quiz => <Card quiz={quiz} key={quiz.id} />)}
+            </div>
           </div>
         </div>
-
-        <div className="all">
-          <div>Browse All</div>
-
-          <div>
-            {this.state.quizzes.map(quiz => <Card quiz={quiz} key={quiz.id} />)}
-          </div>
-        </div>
-      </div>
-    )
+      )
+    } else {
+      return <LobbyLoading />
+    }
   }
 }
 

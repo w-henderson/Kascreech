@@ -1,3 +1,10 @@
+div.Library {
+  animation-name: fade-in;
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+  animation-iteration-count: 1;
+}
+
 div.form.library {
   width: 1000px;
   height: 600px;
@@ -6,6 +13,22 @@ div.form.library {
   border-radius: 6px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   overflow: hidden auto;
+
+  div.LobbyLoading {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    place-items: center;
+    place-content: center;
+    animation-name: fade-in;
+    animation-duration: 0.2s;
+    animation-fill-mode: both;
+    animation-iteration-count: 1;
+
+    img {
+      filter: brightness(0) invert(23%) sepia(58%) saturate(2884%) hue-rotate(251deg) brightness(66%) contrast(114%);
+    }
+  }
 
   &>div {
     padding: 32px;
@@ -235,5 +258,15 @@ div.form.library {
         }
       }
     }
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
