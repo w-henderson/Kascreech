@@ -2,17 +2,20 @@ use humphrey_json::error::ParseError;
 use humphrey_json::prelude::*;
 use humphrey_json::Value;
 
+#[derive(Clone)]
 pub struct FailResponse {
     pub success: bool,
     pub error_type: KascreechError,
     pub error_message: Option<String>,
 }
 
+#[derive(Clone)]
 pub enum KascreechError {
     FailedRead,
     GameNotFound,
     KahootGameNotFound,
     UsernameAlreadyExists,
+    GameAlreadyExists,
     InvalidCommand,
     UnknownError,
 }
@@ -48,6 +51,7 @@ impl IntoJson for KascreechError {
             KascreechError::GameNotFound => json!("GameNotFound"),
             KascreechError::KahootGameNotFound => json!("KahootGameNotFound"),
             KascreechError::UsernameAlreadyExists => json!("UsernameAlreadyExists"),
+            KascreechError::GameAlreadyExists => json!("GameAlreadyExists"),
             KascreechError::InvalidCommand => json!("InvalidCommand"),
             KascreechError::UnknownError => json!("UnknownError"),
         }

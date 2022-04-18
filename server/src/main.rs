@@ -1,3 +1,4 @@
+mod api;
 mod database;
 mod err;
 mod host;
@@ -32,9 +33,13 @@ use std::thread::spawn;
 pub struct AppState {
     clients: RwLock<HashMap<SocketAddr, ClientStatus>>,
     games: Mutex<HashMap<String, Game>>,
-    database: Mutex<Database<DatabaseGame>>,
+    database: Arc<Mutex<Database<DatabaseGame>>>,
     global_sender: Mutex<Option<AsyncSender>>,
     event_tx: Mutex<Sender<Event>>,
+}
+
+pub struct HumphreyAppState {
+    database: Arc<Mutex<Database<DatabaseGame>>>,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -46,13 +51,18 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let (event_tx, event_rx) = channel();
 
-    let db: Database<DatabaseGame> = Database::new("db.jdb")?;
+    let db: Arc<Mutex<Database<DatabaseGame>>> = Arc::new(Mutex::new(
+        Database::new("db.jdb")?
+            .with_compaction()?
+            .with_index("name")?
+            .with_index("author")?,
+    ));
 
     let ws_app: AsyncWebsocketApp<AppState> = AsyncWebsocketApp::new_unlinked_with_config(
         AppState {
             clients: Default::default(),
             games: Default::default(),
-            database: Mutex::new(db),
+            database: db.clone(),
             global_sender: Default::default(),
             event_tx: Mutex::new(event_tx.clone()),
         },
@@ -65,10 +75,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     let sender = ws_app.sender();
     *ws_app.get_state().global_sender.lock().unwrap() = Some(sender);
 
-    let humphrey_app: App<()> = App::new()
-        .with_path_aware_route("/*", serve_dir(path))
-        .with_websocket_route("/", async_websocket_handler(ws_app.connect_hook().unwrap()))
-        .with_monitor(MonitorConfig::new(event_tx).with_subscription_to(EventLevel::Info));
+    let humphrey_app: App<HumphreyAppState> =
+        App::new_with_config(32, HumphreyAppState { database: db })
+            .with_route("/api/v1/import", api::import)
+            .with_path_aware_route("/*", serve_dir(path))
+            .with_websocket_route("/", async_websocket_handler(ws_app.connect_hook().unwrap()))
+            .with_monitor(MonitorConfig::new(event_tx).with_subscription_to(EventLevel::Info));
 
     spawn(move || {
         humphrey_app

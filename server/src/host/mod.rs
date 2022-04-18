@@ -1,8 +1,4 @@
-mod kahoot_api;
-mod not_once_cell;
 mod points;
-
-pub use kahoot_api::import;
 
 use crate::err::{FailResponse, KascreechError};
 use crate::types::{ClientStatus, Game, GamePhase, Player, PlayerRoundEnd};
@@ -24,18 +20,19 @@ pub fn host(
     json: Value,
     state: Arc<AppState>,
 ) -> Result<(), FailResponse> {
-    // todo
-
     let game_id = json
         .get("id")
         .ok_or_else(FailResponse::none_option)?
         .as_str()
         .ok_or_else(FailResponse::none_option)?;
 
-    let kahoot = get_kahoot(kahoot_id)
-        .map_err(|e| FailResponse::new(KascreechError::KahootGameNotFound, Some(e.to_string())))?;
+    let mut db = state.database.lock().unwrap();
 
-    let game = kahoot.load(stream.peer_addr());
+    let database_game = db
+        .get(game_id)
+        .map_err(|_| FailResponse::new(KascreechError::GameNotFound, None))?;
+
+    let game = database_game.load(stream.peer_addr());
     let id = game.id.clone();
 
     let mut games = state.games.lock().unwrap();
@@ -47,8 +44,8 @@ pub fn host(
     let response = json!({
         "success": true,
         "gameId": (id.clone()),
-        "gameName": (kahoot.name),
-        "questionCount": (kahoot.questions.len())
+        "gameName": (database_game.name),
+        "questionCount": (database_game.questions.len())
     });
 
     stream.send(Message::new(response.serialize()));
