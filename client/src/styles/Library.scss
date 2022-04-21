@@ -39,12 +39,27 @@ div.form.library {
       height: 48px;
       width: 100%;
       margin-bottom: 16px;
+      place-items: center;
 
-      div {
+      div:first-child {
         flex: 1;
         text-align: left;
         font-size: 24px;
         font-weight: 600;
+        height: 100%;
+      }
+
+      div:last-child {
+        margin-left: 24px;
+        fill: var(--accent);
+        transition: transform 250ms, fill 250ms, filter 250ms;
+        cursor: pointer;
+
+        &:hover {
+          transform: translateY(-4px) scale(1.2);
+          fill: var(--accent-lighter);
+          filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
       }
 
       input {
