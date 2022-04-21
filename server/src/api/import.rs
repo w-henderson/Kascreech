@@ -12,26 +12,6 @@ use humphrey_json::Value;
 use std::error::Error;
 use std::sync::{Arc, Mutex};
 
-#[derive(Clone, Debug)]
-pub struct KahootGame {
-    pub uuid: String,
-    pub title: String,
-    pub description: String,
-    pub author: String,
-    pub image: Option<String>,
-    pub questions: Vec<DatabaseQuestion>,
-}
-
-json_map! {
-    KahootGame,
-    uuid => "uuid",
-    title => "title",
-    description => "description",
-    author => "creator_username",
-    image => "cover",
-    questions => "questions"
-}
-
 static CLIENT: NotOnceCell<Mutex<Client>> = NotOnceCell::new();
 
 pub fn import(request: Request, state: Arc<HumphreyAppState>) -> Response {
@@ -105,17 +85,56 @@ fn get_kahoot(id: &str) -> Result<DatabaseGame, Box<dyn Error>> {
     let response = client
         .get(format!("https://play.kahoot.it/rest/kahoots/{}", id))?
         .send()?;
-    let game: KahootGame = humphrey_json::from_str(response.text().ok_or("Invalid response")?)?;
+    let game = Value::parse(response.text().ok_or("Invalid response")?)?;
+
+    let uuid = extract(&game, "uuid")?;
+    let title = extract(&game, "title")?;
+    let description = extract(&game, "description")?;
+    let author = extract(&game, "creator_username")?;
+    let image = extract(&game, "cover").ok();
+
+    let mut questions = Vec::new();
+
+    for question in game
+        .get("questions")
+        .ok_or("No questions")?
+        .as_array()
+        .ok_or("Invalid questions type")?
+    {
+        let question_type = extract(question, "type")?;
+
+        if question_type == "quiz"
+            || question_type == "survey"
+            || question_type == "multiple_select_quiz"
+        {
+            if let Ok(question) = DatabaseQuestion::from_json(question) {
+                questions.push(question);
+            }
+        }
+    }
+
+    if questions.is_empty() {
+        return Err("No questions found".into());
+    }
 
     Ok(DatabaseGame {
-        id: format!("kahoot-{}", game.uuid),
-        name: game.title,
-        description: game.description,
-        author: game.author,
-        image: game.image,
-        questions: game.questions,
+        id: format!("kahoot-{}", uuid),
+        name: title,
+        description,
+        author,
+        image,
+        questions,
         plays: 0,
         kahoot: true,
         featured: false,
     })
+}
+
+fn extract(value: &Value, key: &str) -> Result<String, Box<dyn Error>> {
+    value
+        .get(key)
+        .ok_or("Key not found")?
+        .as_str()
+        .ok_or_else(|| "Invalid value".into())
+        .map(|s| s.to_string())
 }

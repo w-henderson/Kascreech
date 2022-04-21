@@ -53,7 +53,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let db: Arc<Mutex<Database<DatabaseGame>>> = Arc::new(Mutex::new(
         Database::new("db.jdb")?
-            .with_compaction()?
             .with_index("name")?
             .with_index("author")?
             .with_index("featured")?,
