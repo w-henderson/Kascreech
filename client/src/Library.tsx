@@ -8,15 +8,18 @@ import LobbyLoading from './LobbyLoading';
 interface LibraryProps {
   close: () => void,
   updateImportId: (s: string) => void,
-  startGame: (e: any) => void,
+  startGame: (id: string) => void,
   importId: string,
   importError: boolean,
 }
 
 interface LibraryState {
   loaded: boolean,
-  featured: QuizEntry[],
-  quizzes: QuizEntry[],
+  featured: DatabaseGame[],
+  quizzes: DatabaseGame[],
+  search: string,
+  searchLoaded: boolean,
+  offset: number
 }
 
 class Library extends React.Component<LibraryProps, LibraryState> {
@@ -25,102 +28,116 @@ class Library extends React.Component<LibraryProps, LibraryState> {
 
     this.state = {
       loaded: false,
-      featured: [
-        {
-          id: "1",
-          name: "La France",
-          description: "Culture génerale française",
-          author: "GarAlb",
-          image: "https://media.kahoot.it/02add214-3f87-4472-bb78-81c14f9e03a4_opt",
-          questions: 10,
-          plays: 69,
-          kahoot: true,
-        },
-        {
-          id: "2",
-          name: "Learn About Passover with an Extremely Long Title!",
-          description: "Play along to learn about the Jewish holiday of Passover. #Passover #Jewish #JewishHolidays",
-          author: "KahootStudio",
-          image: "https://media.kahoot.it/fad9423e-996e-4cba-838f-861e9ffd3adc",
-          questions: 10,
-          plays: 69,
-          kahoot: true,
-        },
-        {
-          id: "3",
-          name: "The Music of Tangled",
-          description: "How well do you know the beloved music from Tangled? Don\u0027t be afraid to sing these timeless songs aloud! © Disney. All rights reserved. #disney #tangled #disneymusic",
-          author: "Disney_Official",
-          image: "https://media.kahoot.it/c6601554-888d-4647-bc2d-3545c9de1e1d",
-          questions: 10,
-          plays: 69,
-          kahoot: true,
-        }
-      ],
-      quizzes: [
-        {
-          id: "1",
-          name: "La France",
-          description: "Culture génerale française",
-          author: "GarAlb",
-          image: "https://media.kahoot.it/02add214-3f87-4472-bb78-81c14f9e03a4_opt",
-          questions: 10,
-          plays: 69,
-          kahoot: true,
-        },
-        {
-          id: "2",
-          name: "Learn About Passover!",
-          description: "Play along to learn about the Jewish holiday of Passover. #Passover #Jewish #JewishHolidays",
-          author: "KahootStudio",
-          image: "https://media.kahoot.it/fad9423e-996e-4cba-838f-861e9ffd3adc",
-          questions: 10,
-          plays: 69,
-          kahoot: true,
-        },
-        {
-          id: "3",
-          name: "The Music of Tangled with a really long title that will need to be wrapped",
-          description: "How well do you know the beloved music from Tangled? Don\u0027t be afraid to sing these timeless songs aloud! © Disney. All rights reserved. #disney #tangled #disneymusic",
-          author: "Disney_Official",
-          image: "https://media.kahoot.it/c6601554-888d-4647-bc2d-3545c9de1e1d",
-          questions: 10,
-          plays: 69,
-          kahoot: true,
-        }
-      ],
+      featured: [],
+      quizzes: [],
+      search: "",
+      searchLoaded: false,
+      offset: 0
     }
+
+    this.search = this.search.bind(this);
   }
 
   componentDidMount() {
     if (!this.state.loaded) {
-      setTimeout(() => this.setState({ loaded: true }), 500);
+      Promise.all([
+        fetch("/api/v1/list", {
+          method: "POST",
+          body: JSON.stringify({
+            offset: this.state.offset,
+          })
+        })
+          .then(res => res.json())
+          .then((data: DatabaseGame[]) => {
+            let quizzes = this.state.quizzes.concat(data);
+            this.setState({ quizzes });
+          }),
+        fetch("/api/v1/featured")
+          .then(res => res.json())
+          .then((data: DatabaseGame[]) => this.setState({ featured: data }))
+      ]).then(() => {
+        this.setState({ loaded: true });
+      })
+    }
+  }
+
+  search(e: any) {
+    let query: string = e.target.value;
+    this.setState({
+      search: query,
+      searchLoaded: false
+    });
+
+    if (query.length > 0) {
+      fetch("/api/v1/search", {
+        method: "POST",
+        body: JSON.stringify({ query })
+      })
+        .then(res => res.json())
+        .then((data: DatabaseGame[]) => {
+          this.setState({
+            quizzes: data,
+            searchLoaded: true
+          });
+        })
+    } else {
+      fetch("/api/v1/list", {
+        method: "POST",
+        body: JSON.stringify({
+          offset: this.state.offset,
+        })
+      })
+        .then(res => res.json())
+        .then((data: DatabaseGame[]) => {
+          this.setState({ quizzes: data, offset: 0 });
+        });
     }
   }
 
   render() {
+    let searching = this.state.search.length !== 0;
+    let searchLoaded = this.state.searchLoaded;
+
     if (this.state.loaded) {
       return (
         <div className="Library">
           <div className="header">
             <div>Browse Kascreeches</div>
-            <input type="search" placeholder="Name or author" />
+            <input
+              type="search"
+              placeholder="Name or author"
+              value={this.state.search}
+              onChange={this.search} />
           </div>
 
-          <div className="featured">
-            <div>Featured</div>
+          {this.state.search.length === 0 &&
+            <div className="featured">
+              <div>Featured</div>
 
-            <div>
-              {this.state.featured.map(quiz => <FeaturedCard quiz={quiz} key={quiz.id} />)}
+              <div>
+                {this.state.featured.map(quiz => <FeaturedCard quiz={quiz} key={quiz.id} />)}
+              </div>
             </div>
-          </div>
+          }
 
           <div className="all">
-            <div>Browse All</div>
+            <div>{this.state.search.length === 0 ? "Browse All" : `Search Results for "${this.state.search}"`}</div>
 
-            <div>
-              {this.state.quizzes.map(quiz => <Card quiz={quiz} key={quiz.id} />)}
-            </div>
+            {!(searching && !searchLoaded) &&
+              <div>
+                {this.state.quizzes.map(quiz => <Card quiz={quiz} key={quiz.id} />)}
+
+                {this.state.quizzes.length === 0 &&
+                  "No quizzes found"
+                }
+              </div>
+            }
+
+            {(searching && !searchLoaded) &&
+              <div>
+                <LobbyLoading />
+              </div>
+            }
           </div>
         </div>
       )

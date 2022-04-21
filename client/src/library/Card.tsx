@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface CardProps {
-  quiz: QuizEntry
+  quiz: DatabaseGame
 }
 
 class Card extends React.Component<CardProps> {

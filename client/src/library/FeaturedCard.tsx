@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface FeaturedCardProps {
-  quiz: QuizEntry
+  quiz: DatabaseGame
 }
 
 class FeaturedCard extends React.Component<FeaturedCardProps> {
@@ -17,7 +17,7 @@ class FeaturedCard extends React.Component<FeaturedCardProps> {
 
           <div className="stats">
             <div>
-              <span>{this.props.quiz.questions}</span>
+              <span>{this.props.quiz.questions.length}</span>
               <span>rounds</span>
             </div>
 

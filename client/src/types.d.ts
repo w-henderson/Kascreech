@@ -13,13 +13,25 @@ interface LeaderboardEntry {
   streak: number
 }
 
-interface QuizEntry {
+interface DatabaseGame {
   id: string,
   name: string,
-  author: string,
   description: string,
-  questions: number,
-  plays: number,
+  author: string,
   image?: string,
-  kahoot: boolean
+  questions: DatabaseQuestion[],
+  plays: number,
+  kahoot: boolean,
+  featured: boolean
+}
+
+interface DatabaseQuestion {
+  question: string,
+  time: number,
+  choices: DatabaseAnswer[]
+}
+
+interface DatabaseAnswer {
+  answer: string,
+  correct: boolean
 }

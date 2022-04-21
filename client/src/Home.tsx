@@ -35,6 +35,7 @@ class Home extends React.Component<HomeProps, HomeState> {
 
     this.switchTab = this.switchTab.bind(this);
     this.startGame = this.startGame.bind(this);
+    this.hostGame = this.hostGame.bind(this);
   }
 
   switchTab(tab: Tab) {
@@ -50,6 +51,14 @@ class Home extends React.Component<HomeProps, HomeState> {
   startGame(e: FormEvent, mode: AppPhase) {
     e.preventDefault();
     this.props.setState({ phase: mode, error: undefined });
+  }
+
+  hostGame(id: string) {
+    this.props.setState({
+      phase: AppPhase.Host,
+      hostID: id,
+      error: undefined
+    });
   }
 
   render() {
@@ -82,7 +91,7 @@ class Home extends React.Component<HomeProps, HomeState> {
       <Library
         close={() => this.switchTab(Tab.Play)}
         updateImportId={(id) => this.props.setState({ hostID: id, error: undefined })}
-        startGame={(e) => this.startGame(e, AppPhase.Host)}
+        startGame={this.hostGame}
         importId={this.props.hostID}
         importError={this.props.error === KascreechError.KahootGameNotFound} />
     );
