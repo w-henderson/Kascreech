@@ -1,3 +1,4 @@
+use crate::api::COUNT;
 use crate::HumphreyAppState;
 
 use humphrey::http::headers::ResponseHeader;
@@ -6,8 +7,6 @@ use humphrey::http::{Request, Response, StatusCode};
 use humphrey_json::Value;
 
 use std::sync::Arc;
-
-const COUNT: usize = 10;
 
 pub fn list(request: Request, state: Arc<HumphreyAppState>) -> Response {
     let offset = request

@@ -81,6 +81,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             .with_route("/api/v1/import", api::import)
             .with_route("/api/v1/featured", api::featured)
             .with_route("/api/v1/list", api::list)
+            .with_route("/api/v1/search", api::search)
             .with_path_aware_route("/*", serve_dir(path))
             .with_websocket_route("/", async_websocket_handler(ws_app.connect_hook().unwrap()))
             .with_monitor(MonitorConfig::new(event_tx).with_subscription_to(EventLevel::Info));
