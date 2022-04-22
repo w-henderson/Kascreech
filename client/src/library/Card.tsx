@@ -1,7 +1,8 @@
 import React from 'react';
 
 interface CardProps {
-  quiz: DatabaseGame
+  quiz: DatabaseGame,
+  play: () => void
 }
 
 class Card extends React.Component<CardProps> {
@@ -15,7 +16,7 @@ class Card extends React.Component<CardProps> {
             <p>{this.props.quiz.author}</p>
           </div>
 
-          <div className="play">
+          <div className="play" onClick={this.props.play}>
             Play Now!
           </div>
         </div>

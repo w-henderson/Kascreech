@@ -113,12 +113,17 @@ class Library extends React.Component<LibraryProps, LibraryState> {
             </div>
           </div>
 
-          {this.state.search.length === 0 &&
+          {(this.state.search.length === 0 && this.state.featured.length !== 0) &&
             <div className="featured">
               <div>Featured</div>
 
               <div>
-                {this.state.featured.map(quiz => <FeaturedCard quiz={quiz} key={quiz.id} />)}
+                {this.state.featured.map(quiz =>
+                  <FeaturedCard
+                    quiz={quiz}
+                    key={quiz.id}
+                    play={() => this.props.startGame(quiz.id)} />)
+                }
               </div>
             </div>
           }
@@ -128,7 +133,12 @@ class Library extends React.Component<LibraryProps, LibraryState> {
 
             {!(searching && !searchLoaded) &&
               <div>
-                {this.state.quizzes.map(quiz => <Card quiz={quiz} key={quiz.id} />)}
+                {this.state.quizzes.map(quiz =>
+                  <Card
+                    quiz={quiz}
+                    key={quiz.id}
+                    play={() => this.props.startGame(quiz.id)} />)
+                }
 
                 {this.state.quizzes.length === 0 &&
                   "No quizzes found"
@@ -151,21 +161,3 @@ class Library extends React.Component<LibraryProps, LibraryState> {
 }
 
 export default Library;
-
-/*
-<div>
-  <span onClick={this.props.close}>Play</span>
-  <span className="active">Host</span>
-</div>
-<form>
-  <input
-    placeholder="Kahoot ID"
-    value={this.props.importId}
-    className={this.props.importError ? "error" : undefined}
-    onChange={(e) => this.props.updateImportId(e.target.value)} />
-  <input
-    type="submit"
-    value="Create"
-    onClick={(e) => this.props.startGame(e)} />
-</form>
-*/
