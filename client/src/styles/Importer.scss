@@ -1,0 +1,73 @@
+div.Importer {
+  animation-name: fade-in;
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+  animation-iteration-count: 1;
+}
+
+div.form.import {
+  width: 320px;
+  height: 307px;
+  max-width: 85vw;
+  background-color: #e8e8e8;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  padding-bottom: 16px;
+  overflow: hidden;
+
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 1em 0;
+  }
+
+  div.LobbyLoading {
+    margin: 64px;
+
+    img {
+      filter: brightness(0) invert(23%) sepia(58%) saturate(2884%) hue-rotate(251deg) brightness(66%) contrast(114%);
+    }
+  }
+
+  input {
+    display: block;
+    width: 288px;
+    height: 48px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    margin: 0 auto 8px auto;
+    outline: none;
+
+    &:last-child {
+      margin: 0 auto -2px auto;
+    }
+
+    transition: border 250ms;
+
+    &:focus {
+      border: 2px solid rgba(0, 0, 0, 0.8);
+    }
+
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark);
+
+    &::placeholder {
+      color: rgba(0, 0, 0, 0.35);
+      opacity: 1;
+    }
+
+    &[type=button],
+    &[type=submit] {
+      background-color: var(--dark);
+      color: var(--light);
+      font-weight: 800;
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--darker);
+      }
+    }
+  }
+}

@@ -4,7 +4,8 @@ import './styles/Home.scss';
 import './styles/Library.scss';
 
 import logo from "./images/logo.png";
-import Library from './Library';
+import Library from './library/Library';
+import Importer from './library/Importer';
 
 interface HomeProps {
   hostID: string,
@@ -16,7 +17,8 @@ interface HomeProps {
 
 enum Tab {
   Play,
-  Host
+  Host,
+  Import
 }
 
 interface HomeState {
@@ -36,6 +38,7 @@ class Home extends React.Component<HomeProps, HomeState> {
     this.switchTab = this.switchTab.bind(this);
     this.startGame = this.startGame.bind(this);
     this.hostGame = this.hostGame.bind(this);
+    this.importGame = this.importGame.bind(this);
   }
 
   switchTab(tab: Tab) {
@@ -61,40 +64,61 @@ class Home extends React.Component<HomeProps, HomeState> {
     });
   }
 
+  importGame(id: string) {
+
+  }
+
   render() {
-    let inner = this.state.tab === Tab.Play ? (
-      <div>
+    let inner = <></>;
+
+    if (this.state.tab === Tab.Play) {
+      inner = (
         <div>
-          <span className="active">Play</span>
-          <span onClick={() => this.switchTab(Tab.Host)}>Host</span>
+          <div>
+            <span className="active">Play</span>
+            <span onClick={() => this.switchTab(Tab.Host)}>Host</span>
+          </div>
+          <form>
+            <input
+              placeholder="Game ID"
+              value={this.props.joinID}
+              type="tel"
+              autoComplete="off"
+              className={this.props.error === KascreechError.GameNotFound ? "error" : undefined}
+              onChange={(e) => this.props.setState({ joinID: e.target.value, error: undefined })} />
+            <input
+              placeholder="User Name"
+              value={this.props.joinName}
+              className={this.props.error === KascreechError.UsernameAlreadyExists ? "error" : undefined}
+              onChange={(e) => this.props.setState({ joinName: e.target.value, error: undefined })} />
+            <input
+              type="submit"
+              value="Enter"
+              onClick={(e) => this.startGame(e, AppPhase.Player)} />
+          </form>
         </div>
-        <form>
-          <input
-            placeholder="Game ID"
-            value={this.props.joinID}
-            type="tel"
-            autoComplete="off"
-            className={this.props.error === KascreechError.GameNotFound ? "error" : undefined}
-            onChange={(e) => this.props.setState({ joinID: e.target.value, error: undefined })} />
-          <input
-            placeholder="User Name"
-            value={this.props.joinName}
-            className={this.props.error === KascreechError.UsernameAlreadyExists ? "error" : undefined}
-            onChange={(e) => this.props.setState({ joinName: e.target.value, error: undefined })} />
-          <input
-            type="submit"
-            value="Enter"
-            onClick={(e) => this.startGame(e, AppPhase.Player)} />
-        </form>
-      </div>
-    ) : (
-      <Library
-        close={() => this.switchTab(Tab.Play)}
-        updateImportId={(id) => this.props.setState({ hostID: id, error: undefined })}
-        startGame={this.hostGame}
-        importId={this.props.hostID}
-        importError={this.props.error === KascreechError.KahootGameNotFound} />
-    );
+      );
+    } else if (this.state.tab === Tab.Host) {
+      inner = (
+        <Library
+          close={() => this.switchTab(Tab.Play)}
+          import={() => this.switchTab(Tab.Import)}
+          updateImportId={(id) => this.props.setState({ hostID: id, error: undefined })}
+          startGame={this.hostGame}
+          importId={this.props.hostID}
+          importError={this.props.error === KascreechError.KahootGameNotFound} />
+      );
+    } else if (this.state.tab === Tab.Import) {
+      inner = (
+        <Importer
+          back={() => this.switchTab(Tab.Host)}
+          imported={(_) => { }} />
+      )
+    }
+
+    let className = "regular";
+    if (this.state.tab === Tab.Host) className = "library";
+    if (this.state.tab === Tab.Import) className = "import";
 
     return (
       <div className="Home">
@@ -104,7 +128,7 @@ class Home extends React.Component<HomeProps, HomeState> {
           className="logo"
           onClick={() => this.setState({ tab: Tab.Play })} />
 
-        <div className={this.state.tab === Tab.Play ? "form regular" : "form library"}>
+        <div className={`form ${className}`}>
           {inner}
         </div>
 
