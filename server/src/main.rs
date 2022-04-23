@@ -79,7 +79,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         App::new_with_config(32, HumphreyAppState { database: db })
             .with_route("/api/v1/import", api::import)
             .with_route("/api/v1/featured", api::featured)
-            .with_route("/api/v1/list", api::list)
+            .with_route("/api/v1/recent", api::recent)
             .with_route("/api/v1/search", api::search)
             .with_path_aware_route("/*", serve_dir(path))
             .with_websocket_route("/", async_websocket_handler(ws_app.connect_hook().unwrap()))
