@@ -19,8 +19,7 @@ interface LibraryState {
   featured: DatabaseGame[],
   quizzes: DatabaseGame[],
   search: string,
-  searchLoaded: boolean,
-  offset: number
+  searchLoaded: boolean
 }
 
 class Library extends React.Component<LibraryProps, LibraryState> {
@@ -32,8 +31,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
       featured: [],
       quizzes: [],
       search: "",
-      searchLoaded: false,
-      offset: 0
+      searchLoaded: false
     }
 
     this.search = this.search.bind(this);
@@ -42,12 +40,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   componentDidMount() {
     if (!this.state.loaded) {
       Promise.all([
-        fetch("/api/v1/list", {
-          method: "POST",
-          body: JSON.stringify({
-            offset: this.state.offset,
-          })
-        })
+        fetch("/api/v1/recent")
           .then(res => res.json())
           .then((data: DatabaseGame[]) => {
             let quizzes = this.state.quizzes.concat(data);
@@ -82,15 +75,10 @@ class Library extends React.Component<LibraryProps, LibraryState> {
           });
         })
     } else {
-      fetch("/api/v1/list", {
-        method: "POST",
-        body: JSON.stringify({
-          offset: this.state.offset,
-        })
-      })
+      fetch("/api/v1/recent")
         .then(res => res.json())
         .then((data: DatabaseGame[]) => {
-          this.setState({ quizzes: data, offset: 0 });
+          this.setState({ quizzes: data });
         });
     }
   }
@@ -130,7 +118,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
           }
 
           <div className="all">
-            <div>{this.state.search.length === 0 ? "Browse All" : `Search Results for "${this.state.search}"`}</div>
+            <div>{this.state.search.length === 0 ? "Recently Created" : `Search Results for "${this.state.search}"`}</div>
 
             {!(searching && !searchLoaded) &&
               <div>
