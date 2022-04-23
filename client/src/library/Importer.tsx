@@ -26,11 +26,29 @@ class Importer extends React.Component<ImporterProps, ImporterState> {
   }
 
   importGame() {
-    this.setState({ importing: true });
+    let uuidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
+    let id = (this.state.kahootId.match(uuidRegex) ?? [null])[0];
+
+    // TODO: better error handling
+    if (id === null) {
+      alert("No valid Kahoot ID found in the URL.");
+      return;
+    }
+
+    this.setState({ importing: true }, () => {
+      fetch("/api/v1/import", {
+        method: "POST",
+        body: JSON.stringify({
+          id: this.state.kahootId
+        })
+      })
+        .then(res => res.json())
+        .then(data => this.props.imported(data.gameId));
+    });
   }
 
   uploadGame() {
-    this.setState({ importing: true });
+    alert("Coming Soon");
   }
 
   render() {

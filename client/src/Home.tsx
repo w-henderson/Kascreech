@@ -65,7 +65,7 @@ class Home extends React.Component<HomeProps, HomeState> {
   }
 
   importGame(id: string) {
-
+    this.setState({ tab: Tab.Host });
   }
 
   render() {
@@ -112,7 +112,7 @@ class Home extends React.Component<HomeProps, HomeState> {
       inner = (
         <Importer
           back={() => this.switchTab(Tab.Host)}
-          imported={(_) => { }} />
+          imported={this.importGame} />
       )
     }
 
