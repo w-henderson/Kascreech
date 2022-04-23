@@ -28,7 +28,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     super(props);
 
     this.state = {
-      loaded: true,
+      loaded: process.env.NODE_ENV === "development", // in development mode, don't connect to the API
       featured: [],
       quizzes: [],
       search: "",
