@@ -87,9 +87,9 @@ dependencies = [
 
 [[package]]
 name = "jasondb"
-version = "0.2.4"
+version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7926cafa062b479ca01f814f9567273fc554fc6f839b2323fc1e4d5279cf1637"
+checksum = "303ac35f807cb92785d27547535fe8b5e234593041cb5b0cf8e0f86f7bf40a45"
 dependencies = [
  "humphrey_json",
 ]

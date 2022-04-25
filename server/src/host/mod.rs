@@ -26,11 +26,21 @@ pub fn host(
         .as_str()
         .ok_or_else(FailResponse::none_option)?;
 
-    let mut db = state.database.lock().unwrap();
+    let database_game = {
+        let mut db = state.database.lock().unwrap();
 
-    let database_game = db
-        .get(game_id)
-        .map_err(|_| FailResponse::new(KascreechError::GameNotFound, None))?;
+        let mut game = db
+            .get(game_id)
+            .map_err(|_| FailResponse::new(KascreechError::GameNotFound, None))?;
+
+        game.plays += 1;
+
+        db.set(game_id, &game).map_err(|_| {
+            FailResponse::new(KascreechError::UnknownError, Some("Database error".into()))
+        })?;
+
+        game
+    };
 
     let game = database_game.load(stream.peer_addr());
     let id = game.id.clone();
