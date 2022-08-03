@@ -1,7 +1,7 @@
 use crate::api::COUNT;
 use crate::HumphreyAppState;
 
-use humphrey::http::headers::ResponseHeader;
+use humphrey::http::headers::HeaderType;
 use humphrey::http::{Request, Response, StatusCode};
 
 use humphrey_json::Value;
@@ -48,7 +48,7 @@ pub fn search(request: Request, state: Arc<HumphreyAppState>) -> Response {
 
         Response::empty(StatusCode::OK)
             .with_bytes(humphrey_json::to_string(&games))
-            .with_header(ResponseHeader::ContentType, "application/json".into())
+            .with_header(HeaderType::ContentType, "application/json")
     } else {
         Response::empty(StatusCode::BadRequest).with_bytes("Include a query field")
     }

@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-humphrey = { version = "^0.5.5", features = ["tls"] }
-humphrey_ws = "^0.3.3"
-humphrey_json = "^0.1.0"
+humphrey = { version = "^0.6.4", features = ["tls"] }
+humphrey_ws = "^0.5.0"
+humphrey_json = "^0.1.1"
 jasondb = "^0.2.5"
 getrandom = "0.2"

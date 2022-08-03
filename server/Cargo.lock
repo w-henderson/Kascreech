@@ -61,9 +61,9 @@ dependencies = [
 
 [[package]]
 name = "humphrey"
-version = "0.5.5"
+version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5749e49b5d583ed315e2b371a8c0db7c8cad02a27306b11473c1e0da5d0ae415"
+checksum = "fc2c5d4314b3536010173287b26ff7dea7787f7e58b09b0ea1a48b017749a2d9"
 dependencies = [
  "rustls",
  "rustls-native-certs",
@@ -78,9 +78,9 @@ checksum = "1307584198424a6e74bde63f75543a6da7b506eb898890b59b908ccc1f4cef38"
 
 [[package]]
 name = "humphrey_ws"
-version = "0.3.3"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e3e9b603fb584d9cf0bb3b1d13e61f9af5a1d1d780faf53074f644924a8a7c84"
+checksum = "88cc8b017ff455235c198b33e3200edcc115f1a444bb635022bfd1d7a6653d46"
 dependencies = [
  "humphrey",
 ]

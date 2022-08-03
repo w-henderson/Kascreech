@@ -1,7 +1,7 @@
 use crate::api::COUNT;
 use crate::HumphreyAppState;
 
-use humphrey::http::headers::ResponseHeader;
+use humphrey::http::headers::HeaderType;
 use humphrey::http::{Request, Response, StatusCode};
 
 use std::sync::Arc;
@@ -19,5 +19,5 @@ pub fn recent(_: Request, state: Arc<HumphreyAppState>) -> Response {
 
     Response::empty(StatusCode::OK)
         .with_bytes(humphrey_json::to_string(&games))
-        .with_header(ResponseHeader::ContentType, "application/json".into())
+        .with_header(HeaderType::ContentType, "application/json")
 }
